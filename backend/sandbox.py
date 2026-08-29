@@ -51,7 +51,9 @@ def run_worker_in_sandbox(
         params = CreateSandboxFromImageParams(
             image=_IMAGE,
             language="python",
-            resources=Resources(cpu=1, memory=2),
+            # Worker is tiny — one httpx call, no ML libs. 1 GiB is plenty and
+            # keeps us under the Daytona free tier's 10 GiB total-memory cap.
+            resources=Resources(cpu=1, memory=1),
             auto_stop_interval=0,
             auto_delete_interval=5,
             # Only the agent's host is reachable from inside the sandbox.

@@ -160,10 +160,13 @@ def _run_eval_body(eval_id: str, agent_url: str, test_set: list[dict], runs_per_
             tile["status"] = "running"
 
     try:
+        # max_workers=8 with memory=1 keeps total sandbox memory ≤ 8 GiB,
+        # under Daytona's 10 GiB free-tier cap. Bump both together if you
+        # upgrade the plan.
         sandbox.fan_out(
             tasks,
             worker_source=worker_source,
-            max_workers=15,
+            max_workers=8,
             on_tile_done=_on_tile_done,
         )
     except Exception as e:
