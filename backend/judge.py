@@ -125,15 +125,36 @@ Return JSON only, no prose:
     # No max_tokens — reasoning models (e.g. glm-4.7-flash) burn budget on
     # the internal "reasoning" field before writing content, so a cap here
     # returns empty content with finish_reason=length.
-    # response_format=json_object — the endpoint enforces valid JSON output,
-    # dodging the reasoning-model's tendency to mix prose with JSON.
-    r = client.chat.completions.create(
-        model=model,
-        temperature=0.0,
-        response_format={"type": "json_object"},
-        messages=[{"role": "user", "content": prompt}],
-    )
-    parsed = _extract_json(r.choices[0].message.content or "")
+    # response_format=json_object — the endpoint enforces valid JSON output.
+    # Retry: even with json_object, the reasoning model occasionally returns
+    # empty content. A fresh call at the same temperature almost always fixes it.
+    parsed: dict | None = None
+    last_err = ""
+    for attempt in range(3):
+        r = client.chat.completions.create(
+            model=model,
+            temperature=0.0,
+            response_format={"type": "json_object"},
+            messages=[{"role": "user", "content": prompt}],
+        )
+        content = (r.choices[0].message.content or "").strip()
+        if not content:
+            last_err = "empty content from judge"
+            continue
+        try:
+            parsed = _extract_json(content)
+            break
+        except ValueError as e:
+            last_err = str(e)
+            continue
+
+    if parsed is None:
+        return {
+            "drift": 0.0,
+            "clusters": [[i + 1] for i in range(len(responses))],
+            "reason": f"consistency judge returned no parseable JSON after 3 attempts ({last_err})",
+        }
+
     clusters = parsed.get("clusters", [[i + 1] for i in range(len(responses))])
     reason = parsed.get("reason", "")
     drift = compute_drift(clusters, len(responses))
