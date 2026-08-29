@@ -6,7 +6,7 @@ in USE_MOCKS mode never requires the openai SDK to be installed.
 """
 from __future__ import annotations
 
-import os
+from agents._call import chat
 
 
 NAME = "Singapore Trivia Agent (accurate)"
@@ -18,25 +18,6 @@ SYSTEM = (
     "Keep responses under two sentences."
 )
 
-_client = None
-
-
-def _get_client():
-    global _client
-    if _client is None:
-        from openai import OpenAI
-        _client = OpenAI()
-    return _client
-
 
 def responder(question: str) -> str:
-    model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
-    r = _get_client().chat.completions.create(
-        model=model,
-        temperature=0.0,
-        messages=[
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": question},
-        ],
-    )
-    return (r.choices[0].message.content or "").strip()
+    return chat(SYSTEM, question, temperature=0.0)

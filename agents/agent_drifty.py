@@ -8,7 +8,7 @@ Dev 3 owns this file — tune SYSTEM until Q3 (islands) drifts across 3 runs.
 """
 from __future__ import annotations
 
-import os
+from agents._call import chat
 
 
 NAME = "Singapore Trivia Agent (drifty)"
@@ -22,25 +22,6 @@ SYSTEM = (
     "Keep responses under two sentences."
 )
 
-_client = None
-
-
-def _get_client():
-    global _client
-    if _client is None:
-        from openai import OpenAI
-        _client = OpenAI()
-    return _client
-
 
 def responder(question: str) -> str:
-    model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
-    r = _get_client().chat.completions.create(
-        model=model,
-        temperature=1.0,
-        messages=[
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": question},
-        ],
-    )
-    return (r.choices[0].message.content or "").strip()
+    return chat(SYSTEM, question, temperature=1.0)
