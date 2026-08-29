@@ -55,6 +55,7 @@ def get_eval_status(eval_id: str) -> dict:
                     "answer": "",
                     "score": 0.0,
                     "relevancy": 0.0,
+                    "reason": "",
                 })
             else:
                 # deterministic fake: q_idx 2 (islands) shows drift on run_idx 0
@@ -75,6 +76,7 @@ def get_eval_status(eval_id: str) -> dict:
                     "answer": ans,
                     "score": score,
                     "relevancy": relevancy,
+                    "reason": "mock: judged consistent",
                 })
 
     scorecard: dict | None = None

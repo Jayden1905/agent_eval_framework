@@ -1,8 +1,9 @@
 """Runs INSIDE a Daytona sandbox — one process per (question, run_idx) tile.
 
-Reads /work/config.json, calls the user's agent via A2A, scores accuracy +
-relevancy with DeepEval (both metrics point at the Nosana-hosted OpenAI-
-compatible endpoint), writes /work/result.json.
+Reads /work/config.json (question, expected, answer — answer is pre-fetched
+by the backend), scores accuracy + relevancy with DeepEval, writes
+/work/result.json. The DeepEval judge points at the Nosana-hosted OpenAI-
+compatible endpoint via env vars.
 
 Env forwarded by backend/sandbox.py: OPENAI_BASE_URL, OPENAI_API_KEY,
 NOSANA_MODEL. The openai SDK (and DeepEval's default judge) both read
@@ -17,7 +18,6 @@ import json
 import os
 import sys
 import traceback
-import uuid
 
 
 def main() -> int:
@@ -25,7 +25,7 @@ def main() -> int:
         with open("/work/config.json") as f:
             cfg = json.load(f)
 
-        answer = _send_a2a(cfg["agent_url"], cfg["question"])
+        answer = cfg["answer"]
         acc, rel, reason = _score(cfg["question"], cfg["expected"], answer)
 
         _write({
@@ -45,40 +45,6 @@ def main() -> int:
             "error": traceback.format_exc(),
         })
         return 1
-
-
-def _send_a2a(agent_url: str, question: str) -> str:
-    """Discover agent card + send message/send. See backend/a2a_client.py for parity."""
-    import httpx
-
-    base = agent_url.rstrip("/")
-    card = httpx.get(f"{base}/.well-known/agent-card.json", timeout=10).json()
-
-    rpc_url = f"{base}/a2a/jsonrpc/"
-    for iface in card.get("supported_interfaces", []):
-        if iface.get("protocol_binding") == "JSONRPC":
-            rpc_url = iface["url"]
-            break
-
-    payload = {
-        "jsonrpc": "2.0",
-        "id": uuid.uuid4().hex,
-        "method": "message/send",
-        "params": {
-            "message": {
-                "role": "ROLE_USER",
-                "message_id": uuid.uuid4().hex,
-                "parts": [{"text": question}],
-            },
-        },
-    }
-    r = httpx.post(rpc_url, json=payload, timeout=60)
-    r.raise_for_status()
-    body = r.json()
-    if "error" in body:
-        raise RuntimeError(f"A2A error: {body['error']}")
-    parts = body["result"]["parts"]
-    return " ".join(p.get("text", "") for p in parts).strip()
 
 
 def _score(question: str, expected: str, actual: str) -> tuple[float, float, str]:

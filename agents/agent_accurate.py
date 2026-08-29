@@ -33,7 +33,6 @@ def responder(question: str) -> str:
     model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
     r = _get_client().chat.completions.create(
         model=model,
-        max_tokens=200,
         temperature=0.0,
         messages=[
             {"role": "system", "content": SYSTEM},

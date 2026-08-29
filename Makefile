@@ -4,7 +4,7 @@
 REPO := https://$(GITHUB_TOKEN)@github.com/Jayden1905/agent_eval_framework.git
 
 .PHONY: help install push pull sync status log clean \
-        dev dev-mocks dev-frontend smoke-a2a
+        dev dev-mocks dev-frontend smoke-a2a smoke-eval
 
 help:
 	@echo "Git:"
@@ -23,6 +23,7 @@ help:
 	@echo "  make dev-mocks     uvicorn backend on :8000 (mocks — dep-free, no LLM calls)"
 	@echo "  make dev-frontend  cd frontend && npm run dev"
 	@echo "  make smoke-a2a     hit the accurate agent's card + one message"
+	@echo "  make smoke-eval    full end-to-end eval (discover -> eval -> poll -> scorecard)"
 
 # ---- git ------------------------------------------------------------
 _check-token:
@@ -55,8 +56,11 @@ clean:
 	rm -rf .venv/lib/python*/site-packages/__pycache__ 2>/dev/null || true
 
 # ---- dev ------------------------------------------------------------
+# SSL_CERT_FILE: Python 3.13 from python.org ships without trusted CA roots,
+# so the Daytona SDK's HTTPS calls fail with SSLCertVerificationError.
+# Point OpenSSL at certifi's bundle (pulled in transitively by requests).
 dev:
-	uvicorn backend.server:app --reload --port 8000
+	@SSL_CERT_FILE=$$(.venv/bin/python -m certifi) uvicorn backend.server:app --reload --port 8000
 
 dev-mocks:
 	USE_MOCKS=1 uvicorn backend.server:app --reload --port 8000
@@ -73,3 +77,6 @@ smoke-a2a:
 		-H "content-type: application/json" \
 		-d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"ROLE_USER","message_id":"x","parts":[{"text":"What year did Singapore gain independence?"}]}}}'
 	@echo ""
+
+smoke-eval:
+	@.venv/bin/python scripts/smoke_eval.py

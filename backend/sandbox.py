@@ -29,10 +29,29 @@ def run_worker_in_sandbox(
     run_idx: int,
     worker_source: str,
 ) -> dict:
-    """Spawn one sandbox, upload worker.py, run it, return the JSON result.
+    """Fetch the agent's answer (backend-side), then run DeepEval scoring in a sandbox.
+
+    Why split: the sandbox exists to isolate the DeepEval judge process — it
+    doesn't need to reach the user's A2A agent itself. Doing the A2A call
+    backend-side means localhost agents work without a public tunnel, and
+    prod agents (public URLs) still work identically.
 
     Returns: {"answer": str, "score": float, "relevancy": float, "reason": str, "error": str | None}
     """
+    # 1. Agent call (backend context — localhost reachable)
+    from backend import a2a_client
+    try:
+        answer = a2a_client.send_message(agent_url, question, timeout=30)
+    except Exception as e:
+        return {
+            "answer": "",
+            "score": 0.0,
+            "relevancy": 0.0,
+            "reason": f"agent call failed: {e}",
+            "error": str(e),
+        }
+
+    # 2. Sandbox handles scoring only
     daytona = _client()
     sandbox = None
     try:
@@ -56,11 +75,11 @@ def run_worker_in_sandbox(
         sandbox.process.exec(f"mkdir -p /work")
         _upload_text(sandbox, "/work/worker.py", worker_source)
 
-        # config for this run
+        # config for this run — answer is pre-fetched, sandbox just scores
         cfg = json.dumps({
             "question": question,
             "expected": expected,
-            "agent_url": agent_url,
+            "answer": answer,
             "run_idx": run_idx,
         })
         _upload_text(sandbox, "/work/config.json", cfg)

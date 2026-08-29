@@ -8,12 +8,11 @@ Return shapes are the contract. Read them carefully.
 from __future__ import annotations
 
 import threading
-import time
 import uuid
-from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 from typing import TypedDict
 
-from backend import a2a_client, judge, sandbox
+from backend import a2a_client, judge
 
 
 class AgentCard(TypedDict, total=False):
@@ -34,6 +33,7 @@ class Tile(TypedDict):
     answer: str
     score: float      # DeepEval GEval accuracy (0..1) — drives pass/fail at 0.7
     relevancy: float  # DeepEval AnswerRelevancy (0..1) — informational
+    reason: str       # judge rationale on pass/fail, or crash trace on error
 
 
 class Scorecard(TypedDict):
@@ -51,8 +51,6 @@ class EvalStatus(TypedDict):
 
 _STATE: dict[str, EvalStatus] = {}
 _LOCK = threading.Lock()
-
-_WORKER_SRC_PATH = Path(__file__).parent / "sandbox_worker.py"
 
 
 def discover_agent(url: str) -> AgentCard:
@@ -73,6 +71,7 @@ def start_eval(agent_url: str, test_set: list[dict], runs_per_q: int = 3) -> str
                 "answer": "",
                 "score": 0.0,
                 "relevancy": 0.0,
+                "reason": "",
             })
 
     with _LOCK:
@@ -97,9 +96,7 @@ def get_eval_status(eval_id: str) -> EvalStatus:
 
 
 def _run_eval(eval_id: str, agent_url: str, test_set: list[dict], runs_per_q: int) -> None:
-    """Background thread: fan out sandboxes, then aggregate."""
-    worker_source = _WORKER_SRC_PATH.read_text()
-
+    """Background thread: fan out (agent call + DeepEval scoring) per tile, then aggregate."""
     tasks = []
     for q_idx, item in enumerate(test_set):
         for run_idx in range(runs_per_q):
@@ -108,44 +105,38 @@ def _run_eval(eval_id: str, agent_url: str, test_set: list[dict], runs_per_q: in
                 "run_idx": run_idx,
                 "question": item["question"],
                 "expected": item["expected"],
-                "agent_url": agent_url,
             })
 
-    def _on_tile_done(result: dict) -> None:
-        with _LOCK:
-            tiles = _STATE[eval_id]["tiles"]
-            for tile in tiles:
-                if tile["q_idx"] == result["q_idx"] and tile["run_idx"] == result["run_idx"]:
-                    tile["answer"] = result.get("answer", "")
-                    tile["score"] = float(result.get("score", 0.0))
-                    tile["relevancy"] = float(result.get("relevancy", 0.0))
-                    if result.get("error"):
-                        tile["status"] = "error"
-                    else:
-                        tile["status"] = "pass" if tile["score"] >= 0.7 else "fail"
-                    break
-
-    # mark first N as running so UI shows activity
-    with _LOCK:
-        for tile in _STATE[eval_id]["tiles"][: min(len(tasks), 15)]:
-            tile["status"] = "running"
-
-    try:
-        completed = sandbox.fan_out(
-            tasks,
-            worker_source=worker_source,
-            max_workers=15,
-            on_tile_done=_on_tile_done,
-        )
-    except Exception as e:
-        # mark everything error and bail
+    def _mark_tile(q_idx: int, run_idx: int, **fields) -> None:
         with _LOCK:
             for tile in _STATE[eval_id]["tiles"]:
-                if tile["status"] in ("pending", "running"):
-                    tile["status"] = "error"
-                    tile["answer"] = f"orchestrator error: {e}"
-        _finalize_scorecard(eval_id, test_set)
-        return
+                if tile["q_idx"] == q_idx and tile["run_idx"] == run_idx:
+                    tile.update(fields)
+                    return
+
+    def _run_one(task: dict) -> None:
+        q_idx, run_idx = task["q_idx"], task["run_idx"]
+        _mark_tile(q_idx, run_idx, status="running")
+        try:
+            answer = a2a_client.send_message(agent_url, task["question"], timeout=60)
+        except Exception as e:
+            _mark_tile(q_idx, run_idx, status="error", answer="",
+                       reason=f"agent call failed: {e}")
+            return
+        try:
+            acc, rel, reason = judge.score_tile(task["question"], task["expected"], answer)
+        except Exception as e:
+            _mark_tile(q_idx, run_idx, status="error", answer=answer,
+                       reason=f"scoring failed: {e}")
+            return
+        _mark_tile(
+            q_idx, run_idx,
+            status="pass" if acc >= 0.7 else "fail",
+            answer=answer, score=acc, relevancy=rel, reason=reason,
+        )
+
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        list(ex.map(_run_one, tasks))
 
     _finalize_scorecard(eval_id, test_set)
 

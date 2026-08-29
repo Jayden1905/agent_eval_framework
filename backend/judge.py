@@ -1,13 +1,18 @@
-"""Judges — accuracy runs inside the sandbox (see backend/sandbox_worker.py);
-consistency runs here in the orchestrator once all runs of a question land.
+"""Judges — accuracy (DeepEval GEval + AnswerRelevancy) and consistency (drift).
 
-- Accuracy: DeepEval GEval + AnswerRelevancy (per-run, inside sandbox).
+Both run in this process. Sandbox isolation was tried but Nosana's ingress
+blocks Daytona's egress at TLS handshake, so DeepEval's judge calls couldn't
+reach the endpoint from inside a sandbox. Backend-side scoring is what
+actually works with the endpoint we've been given.
+
+- Accuracy: DeepEval GEval (custom rubric) — 0..1, drives pass/fail at 0.7.
+- Relevancy: DeepEval AnswerRelevancy — 0..1, informational.
 - Consistency: cluster N responses by semantic equivalence, drift = 1 - largest/N.
 
 DeepEval doesn't ship a built-in cross-run consistency metric; the clustering
 logic here is ours. That gap is the novelty story for the pitch.
 
-Both sides talk to the Nosana-hosted OpenAI-compatible endpoint via the openai
+All calls hit the Nosana-hosted OpenAI-compatible endpoint via the openai
 SDK (which reads OPENAI_BASE_URL + OPENAI_API_KEY from env, mirrored from the
 NOSANA_* vars in backend/server.py at startup).
 """
@@ -17,6 +22,47 @@ import json
 import os
 
 from openai import OpenAI
+
+
+def score_tile(question: str, expected: str, actual: str) -> tuple[float, float, str]:
+    """DeepEval — accuracy (GEval custom rubric) + answer relevancy.
+
+    Returns (accuracy_score, relevancy_score, combined_reason).
+    """
+    from deepeval.metrics import AnswerRelevancyMetric, GEval
+    from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+
+    model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
+
+    accuracy_criteria = (
+        "Determine whether the 'actual output' answers the question in a way that is "
+        "semantically equivalent to the 'expected output'. Different wording is fine. "
+        "Missing key facts, wrong facts, or contradictions with expected output are not fine. "
+        "For questions with ranges or multiple acceptable answers, the expected output states "
+        "the acceptable range — score high if the actual output falls within it."
+    )
+    accuracy = GEval(
+        name="accuracy",
+        criteria=accuracy_criteria,
+        evaluation_params=[
+            LLMTestCaseParams.INPUT,
+            LLMTestCaseParams.EXPECTED_OUTPUT,
+            LLMTestCaseParams.ACTUAL_OUTPUT,
+        ],
+        model=model,
+    )
+    relevancy = AnswerRelevancyMetric(model=model, threshold=0.7)
+
+    tc = LLMTestCase(input=question, expected_output=expected, actual_output=actual)
+    accuracy.measure(tc)
+    relevancy.measure(tc)
+
+    reason_bits = []
+    if accuracy.reason:
+        reason_bits.append(f"acc: {accuracy.reason}")
+    if relevancy.reason:
+        reason_bits.append(f"rel: {relevancy.reason}")
+    return float(accuracy.score), float(relevancy.score), " | ".join(reason_bits)
 
 
 def score_consistency(question: str, responses: list[str]) -> dict:
