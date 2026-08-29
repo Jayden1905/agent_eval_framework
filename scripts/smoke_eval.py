@@ -3,17 +3,28 @@
 Discovers the accurate agent, kicks off a small eval (2 questions x 2 runs),
 polls status every 4s, prints tile progress + final scorecard.
 
+Auto-spawns a Cloudflare quick tunnel so Daytona sandboxes can reach the
+local backend's demo agents. Set TUNNEL_URL to skip.
+
+Note: the mac's own DNS may fail to resolve trycloudflare.com subdomains on
+some networks — that's fine. cloudflared uses a persistent QUIC connection
+to the edge and doesn't need mac DNS. The sandboxes (on Daytona's network)
+resolve the URL cleanly.
+
 Usage:
   python scripts/smoke_eval.py                     # accurate agent
   AGENT=drifty python scripts/smoke_eval.py        # drifty
   AGENT=wrong   python scripts/smoke_eval.py       # wrong
 
-Requires: `make dev` running on localhost:8000.
+Requires: `make dev` running on localhost:8000, cloudflared installed.
 """
 from __future__ import annotations
 
+import atexit
 import json
 import os
+import re
+import subprocess
 import sys
 import time
 import urllib.request
@@ -21,7 +32,67 @@ import urllib.request
 
 BASE = os.environ.get("BACKEND", "http://localhost:8000")
 AGENT = os.environ.get("AGENT", "accurate")
-AGENT_URL = f"{BASE}/agents/{AGENT}"
+TUNNEL_URL_OVERRIDE = os.environ.get("TUNNEL_URL", "")
+_TUNNEL_PROC: subprocess.Popen | None = None
+
+
+def _start_tunnel(port: int) -> str:
+    """Spawn cloudflared and return the assigned public URL.
+
+    We don't probe from the mac — corporate DNS often fails to resolve
+    trycloudflare.com subdomains. cloudflared's QUIC link to the edge is
+    already up by the time it prints the URL; the sandboxes will use it.
+    """
+    global _TUNNEL_PROC
+    print("==> spawning cloudflared quick tunnel")
+    _TUNNEL_PROC = subprocess.Popen(
+        ["cloudflared", "tunnel", "--url", f"http://localhost:{port}"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
+    atexit.register(_stop_tunnel)
+
+    pat = re.compile(r"https://[a-z0-9-]+\.trycloudflare\.com")
+    deadline = time.time() + 30
+    assert _TUNNEL_PROC.stdout is not None
+    while time.time() < deadline:
+        line = _TUNNEL_PROC.stdout.readline()
+        if not line:
+            time.sleep(0.2)
+            continue
+        m = pat.search(line)
+        if m:
+            url = m.group(0)
+            print(f"    tunnel: {url}")
+            # Small settle time for the edge to accept requests.
+            time.sleep(3)
+            return url
+    _stop_tunnel()
+    raise RuntimeError("cloudflared did not report a trycloudflare.com URL within 30s")
+
+
+def _stop_tunnel() -> None:
+    global _TUNNEL_PROC
+    if _TUNNEL_PROC and _TUNNEL_PROC.poll() is None:
+        _TUNNEL_PROC.terminate()
+        try:
+            _TUNNEL_PROC.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            _TUNNEL_PROC.kill()
+    _TUNNEL_PROC = None
+
+
+if TUNNEL_URL_OVERRIDE:
+    PUBLIC_BASE = TUNNEL_URL_OVERRIDE.rstrip("/")
+else:
+    PUBLIC_BASE = _start_tunnel(8000)
+
+# Backend hits itself for discovery (mac DNS can't resolve trycloudflare on
+# this network); sandboxes hit the tunnel URL for the actual eval.
+LOCAL_AGENT_URL = f"{BASE}/agents/{AGENT}"
+AGENT_URL = f"{PUBLIC_BASE}/agents/{AGENT}"
 
 TEST_SET = [
     {"question": "What year did Singapore gain independence?", "expected": "1965"},
@@ -47,13 +118,14 @@ def _get(path: str) -> dict:
 
 
 def main() -> int:
-    print(f"backend: {BASE}")
-    print(f"agent:   {AGENT_URL}")
+    print(f"backend:  {BASE}")
+    print(f"discover: {LOCAL_AGENT_URL}  (mac -> localhost)")
+    print(f"eval:     {AGENT_URL}  (sandbox -> tunnel)")
     print()
 
-    # 1. Discover
+    # 1. Discover — via local URL so backend can reach itself
     print("==> discover")
-    card = _post("/api/discover", {"url": AGENT_URL})
+    card = _post("/api/discover", {"url": LOCAL_AGENT_URL})
     print(f"    name:  {card.get('name')}")
     print(f"    skills: {[s.get('name') for s in card.get('skills', [])]}")
     print()
@@ -70,7 +142,7 @@ def main() -> int:
     print()
 
     # 3. Poll
-    print("==> polling (backend fans out agent calls + DeepEval scoring; expect ~15-40s)")
+    print("==> polling (each tile: spawn sandbox → agent call → backend scoring; ~60-120s cold, ~30-45s warm)")
     started_at = time.time()
     last_line = ""
     while True:

@@ -1,4 +1,9 @@
-"""Daytona sandbox wrapper.
+"""Daytona sandbox wrapper — Option E: sandbox owns the untrusted A2A hop.
+
+Each tile spawns a sandbox that only calls the user's agent (isolated network).
+Backend scores the returned answer via DeepEval afterwards, because Nosana's
+ingress blocks Daytona egress and moving the judge inside the sandbox needs
+Nosana on the domain_allow_list too — a change we may add later.
 
 Declarative image: no pre-baked snapshot needed. First `create` call bakes
 the image (~30-60s), later calls hit the cache (~1-3s). See README.
@@ -6,7 +11,7 @@ the image (~30-60s), later calls hit the cache (~1-3s). See README.
 from __future__ import annotations
 
 import json
-import os
+import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 
 from daytona import Daytona, CreateSandboxFromImageParams, Image, Resources
@@ -14,7 +19,7 @@ from daytona import Daytona, CreateSandboxFromImageParams, Image, Resources
 
 _IMAGE = (
     Image.base("python:3.11-slim")
-    .pip_install(["openai>=1.40.0", "deepeval>=1.0.0", "httpx>=0.27.0"])
+    .pip_install(["httpx>=0.27.0"])
 )
 
 
@@ -29,67 +34,45 @@ def run_worker_in_sandbox(
     run_idx: int,
     worker_source: str,
 ) -> dict:
-    """Fetch the agent's answer (backend-side), then run DeepEval scoring in a sandbox.
-
-    Why split: the sandbox exists to isolate the DeepEval judge process — it
-    doesn't need to reach the user's A2A agent itself. Doing the A2A call
-    backend-side means localhost agents work without a public tunnel, and
-    prod agents (public URLs) still work identically.
+    """Spawn one sandbox → agent call → backend scoring. Returns tile result.
 
     Returns: {"answer": str, "score": float, "relevancy": float, "reason": str, "error": str | None}
     """
-    # 1. Agent call (backend context — localhost reachable)
-    from backend import a2a_client
-    try:
-        answer = a2a_client.send_message(agent_url, question, timeout=30)
-    except Exception as e:
-        return {
-            "answer": "",
-            "score": 0.0,
-            "relevancy": 0.0,
-            "reason": f"agent call failed: {e}",
-            "error": str(e),
-        }
+    from backend import judge  # local import to avoid a2a_client → sandbox cycles
 
-    # 2. Sandbox handles scoring only
+    agent_host = urllib.parse.urlparse(agent_url).hostname or ""
+
     daytona = _client()
     sandbox = None
+    answer = ""
+    worker_reason = ""
+    worker_error: str | None = None
     try:
         params = CreateSandboxFromImageParams(
             image=_IMAGE,
             language="python",
-            env_vars={
-                # DeepEval + openai SDK both read OPENAI_* from env.
-                # backend/server.py mirrors NOSANA_* onto these at startup.
-                "OPENAI_BASE_URL": os.environ.get("OPENAI_BASE_URL", ""),
-                "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
-                "NOSANA_MODEL": os.environ.get("NOSANA_MODEL", ""),
-            },
             resources=Resources(cpu=1, memory=2),
             auto_stop_interval=0,
-            auto_delete_interval=5,  # nuke after 5 min if we forget
+            auto_delete_interval=5,
+            # Only the agent's host is reachable from inside the sandbox.
+            # Nosana host is NOT allowlisted here because the judge runs on
+            # backend, not in the sandbox — see module docstring.
+            domain_allow_list=agent_host,
         )
-        sandbox = daytona.create(params, timeout=120)
+        sandbox = daytona.create(params, timeout=180)
 
-        # upload worker source
-        sandbox.process.exec(f"mkdir -p /work")
+        sandbox.process.exec("mkdir -p /work")
         _upload_text(sandbox, "/work/worker.py", worker_source)
-
-        # config for this run — answer is pre-fetched, sandbox just scores
-        cfg = json.dumps({
+        _upload_text(sandbox, "/work/config.json", json.dumps({
             "question": question,
-            "expected": expected,
-            "answer": answer,
+            "agent_url": agent_url,
             "run_idx": run_idx,
-        })
-        _upload_text(sandbox, "/work/config.json", cfg)
+        }))
 
-        # run
         result = sandbox.process.exec("cd /work && python worker.py")
-        # worker writes /work/result.json regardless of success
         try:
             out = sandbox.fs.download_file("/work/result.json")
-            return json.loads(out.decode("utf-8"))
+            worker_result = json.loads(out.decode("utf-8"))
         except Exception as e:
             return {
                 "answer": "",
@@ -98,12 +81,44 @@ def run_worker_in_sandbox(
                 "reason": "worker did not write result.json",
                 "error": f"{e}\nstdout: {getattr(result, 'result', '')}",
             }
+
+        answer = worker_result.get("answer", "") or ""
+        worker_reason = worker_result.get("reason", "") or ""
+        worker_error = worker_result.get("error")
     finally:
         if sandbox is not None:
             try:
                 daytona.delete(sandbox)
             except Exception:
                 pass
+
+    if worker_error:
+        return {
+            "answer": answer,
+            "score": 0.0,
+            "relevancy": 0.0,
+            "reason": worker_reason or "agent call failed",
+            "error": worker_error,
+        }
+
+    # Score on backend — Nosana reachable from here, but not from sandbox.
+    try:
+        acc, rel, reason = judge.score_tile(question, expected, answer)
+    except Exception as e:
+        return {
+            "answer": answer,
+            "score": 0.0,
+            "relevancy": 0.0,
+            "reason": f"scoring failed: {e}",
+            "error": str(e),
+        }
+    return {
+        "answer": answer,
+        "score": acc,
+        "relevancy": rel,
+        "reason": reason,
+        "error": None,
+    }
 
 
 def fan_out(
@@ -119,7 +134,7 @@ def fan_out(
     Returns the same list with each dict updated with the worker's result.
     on_tile_done(tile) called after each completion so the UI can update.
     """
-    results = list(tasks)  # will fill in-place
+    results = list(tasks)
 
     def _run(idx: int) -> tuple[int, dict]:
         t = tasks[idx]
