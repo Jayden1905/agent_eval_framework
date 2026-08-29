@@ -1,0 +1,7 @@
+# All three agents are mounted onto backend/server.py (one FastAPI process, port 8000).
+# Paste any of these into the frontend as an agent URL.
+#
+# name<TAB>url<TAB>one-line description
+accurate	http://localhost:8000/agents/accurate	Temperature 0, precise + consistent
+drifty	http://localhost:8000/agents/drifty	Temperature 1, varies phrasings across runs — demo drift target
+wrong	http://localhost:8000/agents/wrong	Temperature 0, confidently hallucinates wrong facts — demo accuracy failure

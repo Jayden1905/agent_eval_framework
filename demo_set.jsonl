@@ -1,0 +1,5 @@
+{"question": "What year did Singapore gain independence?", "expected": "1965. Specifically, August 9, 1965, when Singapore separated from Malaysia."}
+{"question": "Name three ingredients commonly found in Singaporean laksa.", "expected": "Any three from: coconut milk, rice noodles (thick vermicelli), prawns, tofu puffs, fish cake, chili paste (sambal), laksa leaves (daun kesum), cockles, bean sprouts, hard-boiled egg."}
+{"question": "How many islands make up Singapore?", "expected": "Approximately 63 islands — one main island plus about 62 smaller ones. Accept any answer in the range 60-64, since sources vary."}
+{"question": "What is the national language of Singapore?", "expected": "Malay is the national language. English, Mandarin, and Tamil are also official languages."}
+{"question": "Who was Singapore's first Prime Minister?", "expected": "Lee Kuan Yew. He served from 1959 to 1990."}
