@@ -27,6 +27,7 @@ button { color: inherit; }
 button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
 .sr-live { position: fixed; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .micro-label, .inspector-label { font: 700 11px/1.15 var(--pixel-font); letter-spacing: .08em; color: #5c50c6; }
+.campus-panel .micro-label { color: #c7c1ff; }
 
 .app-shell { min-height: 100vh; background: radial-gradient(circle at 8% -12%, rgba(121,109,255,.2), transparent 28rem), var(--paper); }
 .app-header { position: sticky; top: 0; z-index: 40; min-height: 72px; display: grid; grid-template-columns: 260px minmax(260px, 460px) 260px; align-items: center; justify-content: space-between; gap: 24px; padding: 12px clamp(16px, 2.2vw, 34px); background: rgba(248,245,236,.94); border-bottom: 2px solid var(--ink); backdrop-filter: blur(14px); }
@@ -209,7 +210,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .run-indicator strong { color: white; text-align: right; font-size: 9px; }
 .office-average { padding: 5px 8px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 3px; color: #8995ae; font: 700 7px/1 var(--pixel-font); }
 .office-average strong { color: var(--lime); font-size: 11px; }
-.office-sandbox-id { min-height: 22px; padding: 0 9px; display: flex; align-items: center; border-top: 1px solid #35425e; background: #172139; color: #929fba; font: 700 7px/1 var(--pixel-font); letter-spacing: .05em; }
+.office-run-id { min-height: 22px; padding: 0 9px; display: flex; align-items: center; border-top: 1px solid #35425e; background: #172139; color: #929fba; font: 700 7px/1 var(--pixel-font); letter-spacing: .05em; }
 
 .agent { position: relative; width: 44px; height: 54px; display: inline-block; image-rendering: pixelated; --shirt: var(--violet); --shirt-dark: #5044c2; --hair: #4f302f; }
 .agent-shadow { position: absolute; z-index: 0; left: 5px; bottom: 0; width: 34px; height: 6px; background: rgba(5,9,20,.32); box-shadow: 4px -2px rgba(5,9,20,.22), -2px -2px rgba(5,9,20,.22); }
@@ -326,7 +327,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .inspector-log li { position: relative; min-height: 30px; display: grid; grid-template-columns: 13px 1fr auto; align-items: start; gap: 7px; color: #5f5d58; font-size: 9px; }
 .inspector-log li:not(:last-child)::after { content: ""; position: absolute; left: 4px; top: 9px; width: 1px; height: 21px; background: #c9c4ba; }
 .inspector-log li i { z-index: 1; width: 9px; height: 9px; border: 2px solid #aaa69c; background: var(--paper-2); }
-.inspector-log li i.log-done { border-color: #35795a; background: var(--mint); }.inspector-log li i.log-live { border-color: #3f75a4; background: var(--blue); animation: blink .8s steps(2) infinite; }
+.inspector-log li i.log-done { border-color: #35795a; background: var(--mint); }.inspector-log li i.log-live { border-color: #3f75a4; background: var(--blue); animation: blink .8s steps(2) infinite; }.inspector-log li i.log-error { border-color: #a43630; background: var(--coral); }
 .inspector-log time { color: #5f5d58; font: 700 7px/1 ui-monospace, monospace; }
 
 @keyframes agent-work { 50% { transform: translateY(-2px); } }
@@ -428,7 +429,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .results-view { padding: 12px; }
   .score-hero { padding: 18px; flex-direction: column; }
   .score-dials > div { min-height: 88px; }
-  .result-head { display: none; }
+  .result-head { position: absolute; width: 1px; min-height: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .result-table { border: 0; background: transparent; }
   .result-row:not(.result-head) { grid-template-columns: repeat(4, 1fr); margin-bottom: 9px; border: 1px solid #46526c; background: #222e48; }
   .result-question-cell { grid-column: 1 / -1; min-height: 42px; border-bottom: 1px solid #3e4962; }
@@ -462,7 +463,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .office-run-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .run-indicator { min-height: 38px; }
   .office-average { min-height: 23px; grid-column: 1 / -1; padding: 0 7px; flex-direction: row; justify-content: flex-end; border-top: 1px solid #35425e; }
-  .office-sandbox-id { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .office-run-id { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .status-label { font-size: 8px; }
   .status-label b { width: 10px; height: 10px; }
   .score-dials { width: 100%; }

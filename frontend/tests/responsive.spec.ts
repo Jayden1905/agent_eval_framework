@@ -19,6 +19,7 @@ test("the evaluation campus is usable without page-level overflow", async ({ pag
   await officeTab.press("ArrowRight");
   await expect(page.getByRole("tab", { name: "Results grid" })).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("tabpanel", { name: "Results grid" })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Drift" })).toBeAttached();
   await page.getByRole("tab", { name: "Results grid" }).press("ArrowLeft");
   await expect(officeTab).toHaveAttribute("aria-selected", "true");
 
@@ -31,6 +32,13 @@ test("the evaluation campus is usable without page-level overflow", async ({ pag
   if (testInfo.project.name.startsWith("phone-") || testInfo.project.name === "tablet") {
     await expect(page.getByLabel("Selected sandbox details")).toBeInViewport();
     await expect(page.getByLabel("Selected sandbox details")).toBeFocused();
+  }
+
+  await page.getByRole("tab", { name: "Results grid" }).click();
+  await page.locator(".result-question-cell button").first().click();
+  await expect(page.getByLabel("Selected sandbox details")).toBeFocused();
+  if (testInfo.project.name.startsWith("phone-") || testInfo.project.name === "tablet") {
+    await expect(page.getByLabel("Selected sandbox details")).toBeInViewport();
   }
 });
 
@@ -75,6 +83,12 @@ test("a completed zero score remains visible and inspectable", async ({ page }, 
   await page.getByRole("button", { name: "wrong" }).click();
   await page.getByRole("button", { name: /Start evaluation/i }).click();
   await page.getByRole("button", { name: /Fast-forward results/i }).click();
+
+  const errorCell = page.getByRole("cell").filter({ has: page.getByRole("button", { name: /question 3, run 3: Error/i }) });
+  await errorCell.getByRole("button").click();
+  await expect(page.getByLabel("Selected sandbox details")).toContainText("This sandbox ended before returning an answer.");
+  await expect(page.getByLabel("Selected sandbox details")).toContainText("Sandbox failed");
+  await expect(page.getByLabel("Selected sandbox details")).toContainText("Sandbox worker timed out before scoring.");
 
   const zeroScoreCell = page.getByRole("cell").filter({ has: page.getByRole("button", { name: /question 5, run 3: Failed, score 0\.00/i }) });
   await expect(zeroScoreCell).toContainText("0.00");

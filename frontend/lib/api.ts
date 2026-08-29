@@ -75,7 +75,7 @@ export async function getEvaluationStatus(evalId: string, signal?: AbortSignal):
       ...tile,
       relevancy: tile.relevancy ?? 0,
       reason: tile.reason ?? "",
-      sandbox_id: `dx-${evalId}-q${tile.q_idx + 1}r${tile.run_idx + 1}`,
+      run_id: `eval-${evalId}-q${tile.q_idx + 1}r${tile.run_idx + 1}`,
     })),
   };
 }

@@ -42,7 +42,7 @@ export const DEMO_SET: TestCase[] = [
   { question: "Who was Singapore's first Prime Minister?", expected: "Lee Kuan Yew." },
 ];
 
-type FinishedRun = { answer: string; score: number; reason: string };
+type FinishedRun = { answer: string; score: number; reason: string; error?: boolean };
 
 const accurate: FinishedRun[][] = [
   [
@@ -102,7 +102,7 @@ const wrong: FinishedRun[][] = [
   [
     { answer: "Singapore has 54 islands.", score: 0.22, reason: "The count is outside the accepted range." },
     { answer: "There are exactly 54 islands.", score: 0.19, reason: "The count is outside the accepted range." },
-    { answer: "It is an archipelago of 58 islands.", score: 0.35, reason: "The count is outside the accepted range." },
+    { answer: "", score: 0, reason: "Sandbox worker timed out before scoring.", error: true },
   ],
   [
     { answer: "English is Singapore's national language.", score: 0.3, reason: "English is official, but Malay is the national language." },
@@ -129,13 +129,16 @@ const DRIFT_REASON: Record<AgentPresetId, string[]> = {
 };
 
 function finalScorecard(agentId: AgentPresetId): Scorecard {
-  const perQuestion = RESULTS[agentId].map((questionRuns, qIdx) => ({
-    q_idx: qIdx,
-    acc: questionRuns.reduce((sum, run) => sum + run.score, 0) / questionRuns.length,
-    rel: 0.9,
-    drift: DRIFT[agentId][qIdx],
-    reason: DRIFT_REASON[agentId][qIdx],
-  }));
+  const perQuestion = RESULTS[agentId].map((questionRuns, qIdx) => {
+    const scoredRuns = questionRuns.filter((run) => !run.error);
+    return {
+      q_idx: qIdx,
+      acc: scoredRuns.reduce((sum, run) => sum + run.score, 0) / Math.max(scoredRuns.length, 1),
+      rel: 0.9,
+      drift: DRIFT[agentId][qIdx],
+      reason: DRIFT_REASON[agentId][qIdx],
+    };
+  });
   const passed = perQuestion.filter((question) => question.acc >= 0.7).length;
   return {
     accuracy: `${passed}/${DEMO_SET.length}`,
@@ -160,12 +163,12 @@ export function getMockSnapshot(agentId: AgentPresetId, completed: number, evalI
       tiles.push({
         q_idx: qIdx,
         run_idx: runIdx,
-        status: isComplete ? (result.score >= 0.7 ? "pass" : "fail") : isRunning ? "running" : "pending",
+        status: isComplete ? (result.error ? "error" : result.score >= 0.7 ? "pass" : "fail") : isRunning ? "running" : "pending",
         answer: isComplete ? result.answer : "",
         score: isComplete ? result.score : 0,
         relevancy: isComplete ? 0.9 : 0,
         reason: isComplete ? result.reason : "",
-        sandbox_id: `dx-${evalId.slice(-4)}-q${qIdx + 1}r${runIdx + 1}`,
+        run_id: `mock-${evalId.slice(-4)}-q${qIdx + 1}r${runIdx + 1}`,
       });
     }
   });

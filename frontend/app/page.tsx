@@ -105,7 +105,7 @@ function QuestionOffice({
         {visualStatus === "running" && activityMode === "typing" && <span className="typing-bubble">⌁⌁</span>}
         {visualStatus === "running" && activityMode === "training" && <span className="training-bubble">RUN!</span>}
         {["fail", "error"].includes(visualStatus) && <span className="anger-steam"><i /><i /><i /></span>}
-        {["pass", "fail", "error"].includes(visualStatus) && <span className={`result-bubble result-bubble-${visualStatus}`} key={`${displayTile.sandbox_id}-${visualStatus}`}>{meta.symbol}</span>}
+        {["pass", "fail", "error"].includes(visualStatus) && <span className={`result-bubble result-bubble-${visualStatus}`} key={`${displayTile.run_id}-${visualStatus}`}>{meta.symbol}</span>}
         <span className={`room-state-effect effect-${visualStatus}`}><i /><i /><i /></span>
       </div>
       <div className="office-run-strip" role="group" aria-label={`Question ${tiles[0].q_idx + 1} sandbox runs`}>
@@ -129,7 +129,7 @@ function QuestionOffice({
         })}
         <span className="office-average"><small>AVG</small><strong>{scoredTiles.length ? averageScore.toFixed(2) : "—"}</strong></span>
       </div>
-      <span className="office-sandbox-id">ACTIVE · {displayTile.sandbox_id}</span>
+      <span className="office-run-id">RUN REF · {displayTile.run_id}</span>
     </article>
   );
 }
@@ -204,6 +204,20 @@ export default function Home() {
     });
   }
 
+  function focusInspectorAfterViewChange() {
+    const stacked = window.matchMedia("(max-width: 1260px)").matches;
+    window.requestAnimationFrame(() => {
+      const inspector = document.getElementById("sandbox-inspector");
+      inspector?.focus({ preventScroll: true });
+      if (stacked) {
+        inspector?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+          block: "start",
+        });
+      }
+    });
+  }
+
   function inspectTile(tile: EvalTile) {
     setSelectedKey(`${tile.q_idx}-${tile.run_idx}`);
     scrollInspectorWhenStacked();
@@ -212,7 +226,7 @@ export default function Home() {
   function inspectQuestion(qIdx: number) {
     setSelectedKey(`${qIdx}-0`);
     setView("office");
-    scrollInspectorWhenStacked();
+    focusInspectorAfterViewChange();
   }
 
   function handleViewKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
@@ -350,7 +364,13 @@ export default function Home() {
                           <button type="button" aria-label={`Inspect question ${tile.q_idx + 1}, run ${tile.run_idx + 1}: ${STATUS_META[tile.status].label}, score ${formatScore(tile.score, tile.status)}`} onClick={() => inspectTile(tile)}><ActivityIcon status={tile.status} /><span>{formatScore(tile.score, tile.status)}</span></button>
                         </div>
                       ))}
-                      <span role="cell" className={snapshot.scorecard?.per_question[qIdx].drift ? "drift-value" : ""}>{snapshot.scorecard ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "—"}</span>
+                      <span
+                        role="cell"
+                        aria-label={`Question ${qIdx + 1} consistency drift ${snapshot.scorecard ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "not available"}`}
+                        className={snapshot.scorecard?.per_question[qIdx].drift ? "drift-value" : ""}
+                      >
+                        {snapshot.scorecard ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "—"}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -361,10 +381,10 @@ export default function Home() {
 
         <aside className="inspector" id="sandbox-inspector" aria-label="Selected sandbox details" tabIndex={-1}>
           <div className="inspector-header"><div><span className="micro-label">SANDBOX INSPECTOR</span><b>Q{selectedTile.q_idx + 1} / RUN {selectedTile.run_idx + 1}</b></div><ActivityIcon status={selectedTile.status} /></div>
-          <div className="inspector-status"><span className={`status-label status-${selectedTile.status}`}><b>{STATUS_META[selectedTile.status].symbol}</b>{STATUS_META[selectedTile.status].label}</span><code>{selectedTile.sandbox_id}</code></div>
+          <div className="inspector-status"><span className={`status-label status-${selectedTile.status}`}><b>{STATUS_META[selectedTile.status].symbol}</b>{STATUS_META[selectedTile.status].label}</span><code>{selectedTile.run_id}</code></div>
           <section className="inspector-section"><span className="inspector-label">PROMPT</span><p>{DEMO_SET[selectedTile.q_idx].question}</p></section>
           <section className="inspector-section expected-section"><span className="inspector-label">EXPECTED</span><p>{DEMO_SET[selectedTile.q_idx].expected}</p></section>
-          <section className="inspector-section answer-section"><span className="inspector-label">AGENT ANSWER</span>{selectedTile.answer ? <p>“{selectedTile.answer}”</p> : <p className="empty-answer">{selectedTile.status === "running" ? "Agent is composing an answer…" : "Waiting for this sandbox to start."}</p>}</section>
+          <section className="inspector-section answer-section"><span className="inspector-label">AGENT ANSWER</span>{selectedTile.answer ? <p>“{selectedTile.answer}”</p> : <p className="empty-answer">{selectedTile.status === "running" ? "Agent is composing an answer…" : selectedTile.status === "error" ? "This sandbox ended before returning an answer." : "Waiting for this sandbox to start."}</p>}</section>
 
           <section className="score-section">
             <div><span className="inspector-label">ACCURACY SCORE</span><strong>{formatScore(selectedTile.score, selectedTile.status)}</strong></div>
@@ -375,9 +395,9 @@ export default function Home() {
           <section className="inspector-log" aria-label="Evaluation log">
             <span className="inspector-label">EVALUATION LOG</span>
             <ol>
-              <li><i className="log-done" /><span>Sandbox created</span><time>00:01</time></li>
-              <li><i className={selectedTile.status === "pending" ? "" : "log-done"} /><span>Agent dispatched</span><time>00:02</time></li>
-              <li><i className={["pass", "fail", "error"].includes(selectedTile.status) ? "log-done" : selectedTile.status === "running" ? "log-live" : ""} /><span>Response scored</span><time>{["pass", "fail", "error"].includes(selectedTile.status) ? "00:05" : "—"}</time></li>
+              <li><i className={selectedTile.status === "pending" ? "" : "log-done"} /><span>{selectedTile.status === "pending" ? "Sandbox queued" : "Sandbox created"}</span><time>{selectedTile.status === "pending" ? "—" : "00:01"}</time></li>
+              <li><i className={selectedTile.status === "pending" ? "" : "log-done"} /><span>{selectedTile.status === "pending" ? "Awaiting agent dispatch" : "Agent dispatched"}</span><time>{selectedTile.status === "pending" ? "—" : "00:02"}</time></li>
+              <li><i className={["pass", "fail"].includes(selectedTile.status) ? "log-done" : selectedTile.status === "error" ? "log-error" : selectedTile.status === "running" ? "log-live" : ""} /><span>{selectedTile.status === "error" ? "Sandbox failed" : selectedTile.status === "running" ? "Response in progress" : selectedTile.status === "pending" ? "Awaiting response" : "Response scored"}</span><time>{["pass", "fail", "error"].includes(selectedTile.status) ? "00:05" : "—"}</time></li>
             </ol>
           </section>
         </aside>

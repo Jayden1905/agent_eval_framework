@@ -24,7 +24,7 @@ export type EvalTile = {
   score: number;
   relevancy: number;
   reason: string;
-  sandbox_id: string;
+  run_id: string;
 };
 
 export type QuestionScore = {
