@@ -56,11 +56,13 @@ clean:
 	rm -rf .venv/lib/python*/site-packages/__pycache__ 2>/dev/null || true
 
 # ---- dev ------------------------------------------------------------
-# SSL_CERT_FILE: Python 3.13 from python.org ships without trusted CA roots,
-# so the Daytona SDK's HTTPS calls fail with SSLCertVerificationError.
-# Point OpenSSL at certifi's bundle (pulled in transitively by requests).
+# dev.sh spawns cloudflared, exports TUNNEL_URL, then execs uvicorn with the
+# certifi CA bundle (Python 3.13 from python.org ships without CA roots, so
+# Daytona SDK HTTPS calls fail with SSLCertVerificationError otherwise).
+# Backend rewrites localhost agent_urls -> $TUNNEL_URL so FE-driven evals
+# work end-to-end without a separate tunnel process.
 dev:
-	@SSL_CERT_FILE=$$(.venv/bin/python -m certifi) uvicorn backend.server:app --reload --port 8000
+	@bash scripts/dev.sh
 
 dev-mocks:
 	USE_MOCKS=1 uvicorn backend.server:app --reload --port 8000
