@@ -120,7 +120,7 @@ const RESULTS: Record<AgentPresetId, FinishedRun[][]> = { accurate, drifty, wron
 const DRIFT: Record<AgentPresetId, number[]> = {
   accurate: [0, 0, 0, 0, 0],
   drifty: [0, 0.33, 0.67, 0, 0.33],
-  wrong: [0, 0, 0.33, 0, 0],
+  wrong: [0, 0, 0, 0, 0],
 };
 const DRIFT_REASON: Record<AgentPresetId, string[]> = {
   accurate: ["All runs agree.", "Equivalent ingredient sets.", "All counts agree.", "All runs agree.", "All runs agree."],
