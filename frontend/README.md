@@ -1,60 +1,48 @@
-# Frontend (Next.js)
+# AgentEval Office frontend
 
-## Bootstrap (Dev 1, first thing)
+An original responsive Next.js visualization for the AgentEval hackathon. It turns the backend's `5 questions × 3 runs` evaluation matrix into an office campus: each question gets one animated office, while its three isolated Daytona runs remain available as compact selectable indicators.
 
-From the repo root:
+## Run locally
 
 ```bash
-cd /Users/jayden-kyaw/projects/daytona_hackathon
-npx create-next-app@latest frontend \
-  --typescript --tailwind --app --no-src-dir --import-alias "@/*" --no-eslint --use-npm --yes
-cd frontend
+npm install
 npm run dev
 ```
 
-Then open http://localhost:3000. Backend runs separately on :8000 (see below).
+Open <http://localhost:3000>.
 
-**Default agent URL:** `http://localhost:8000/agents/accurate` — all three demo agents are mounted at path-based routes on the same backend process. See `../agents/agent_urls.txt`.
+The current interface uses deterministic dummy data and does not require the Python backend or API keys. Choose the accurate, drifty, or wrong agent profile, start the evaluation, and use **Fast-forward results** to inspect the finished scorecard.
 
-## Dev loop
+## Checks
 
-**Terminal 1 — backend (mock mode, no anthropic/daytona needed):**
 ```bash
-USE_MOCKS=1 uvicorn backend.server:app --reload --port 8000
+npm run lint
+npm run build
+npm run test:responsive
 ```
 
-**Terminal 2 — frontend:**
-```bash
-cd frontend && npm run dev
-```
+The Playwright suite covers 360px and 390px phones, tablet, desktop, wide desktop, page-level overflow, all five question offices, all 15 run selectors, sandbox selection, scorecard playback, state animation hooks, and reduced motion.
 
-Swap `USE_MOCKS=1` off once Dev 2 lands the real backend.
+## Frontend structure
 
-## API contract (see `backend/server.py`)
+- `app/page.tsx` — interactive office, setup controls, result grid, and inspector
+- `app/globals.css` — original responsive pixel-office visual system
+- `lib/evaluation-types.ts` — normalized UI contract matching the backend's tile and scorecard shapes
+- `lib/mock-evaluation.ts` — deterministic dummy agent profiles and playback snapshots
+- `lib/api.ts` — real HTTP adapter ready for backend integration
+- `tests/responsive.spec.ts` — responsive and interaction coverage
 
-```
-POST /api/discover              body { url }
-  → agent card JSON { name, description, skills, ... }
+## Switching from dummy data to the backend
 
-POST /api/eval                  body { agent_url, test_set: [{question, expected}], runs_per_q }
-  → { eval_id }
+1. Copy `.env.example` to `.env.local` if the API is not at `http://localhost:8000`.
+2. Replace the mock snapshot progression in `app/page.tsx` with `discoverAgent`, `startEvaluation`, and `getEvaluationStatus` from `lib/api.ts`.
+3. Poll `getEvaluationStatus` about every 500 ms until `scorecard` is non-null.
+4. Preserve the normalized `EvaluationSnapshot` boundary so the office components do not depend on transport details. The adapter preserves the backend's per-run reason and relevancy fields while supplying safe defaults for older snapshots.
 
-GET  /api/eval/{eval_id}/status
-  → { tiles: [{q_idx, run_idx, status, answer, score}], scorecard: {...} | null }
+The legacy `STARTER.md` is the original scaffold supplied by the backend team. It remains for contract history; the working frontend supersedes it.
 
-GET  /api/health                → { ok, mode }
-```
+## Visual provenance
 
-Poll `/api/eval/{id}/status` every ~500ms until `scorecard !== null`.
+The office concept was informed by Pixel Agents, Claude Office, Star Office UI, and Star Office World. Their motion systems also informed the frontend's event-driven rhythm: a short materialize-and-enter sequence, a dominant running-state work loop, finite pass/fail/error reactions, and a quiet settled state. The three `ANIM` labels are presentation variants for mock mode, not backend telemetry.
 
-## Starter code
-
-See `frontend/STARTER.md` in this directory for a drop-in `app/page.tsx` and `lib/api.ts` — copy them in AFTER `create-next-app` finishes.
-
-## Screens (build in this order)
-
-1. Connect: URL input → `POST /api/discover` → render agent card
-2. Test set: "Load demo" (fetch `/demo_set.jsonl` — copy into `public/`) or file upload
-3. Run: button → `POST /api/eval` → get eval_id → start polling
-4. Live grid: N rows × runs_per_q columns, each cell shows status icon + score + answer preview
-5. Scorecard: accuracy X/Y, drift score, per-question table with side-by-side diff for drifty rows
+No art, sprites, animation code, or keyframes were copied from those projects. All room, furniture, character, status, and motion visuals in this frontend are original CSS shapes so the hackathon team can safely evolve or commercialize the project later. Pixelify Sans is supplied through Fontsource under the SIL Open Font License 1.1.
