@@ -1,0 +1,23 @@
+# Secrets / local env — never enter the build context
+.env
+
+# VCS + local dev state
+.git/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+*.log
+.deepeval/
+
+# Not needed by backend/server.py's image (see Dockerfile comments)
+frontend/
+node_modules/
+docs/
+scripts/
+graphify-out/
+results/
+hack.py
+demo_set.jsonl
+README.md

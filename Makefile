@@ -4,7 +4,8 @@
 REPO := https://$(GITHUB_TOKEN)@github.com/Jayden1905/agent_eval_framework.git
 
 .PHONY: help install push pull sync status log clean \
-        dev dev-mocks dev-frontend smoke-a2a smoke-eval
+        dev dev-mocks dev-frontend smoke-a2a smoke-eval \
+        docker-build docker-up docker-mocks docker-down docker-logs
 
 help:
 	@echo "Git:"
@@ -24,6 +25,13 @@ help:
 	@echo "  make dev-frontend  cd frontend && npm run dev"
 	@echo "  make smoke-a2a     hit the accurate agent's card + one message"
 	@echo "  make smoke-eval    full end-to-end eval (discover -> eval -> poll -> scorecard)"
+	@echo ""
+	@echo "Docker (backend + agents, one image — see Dockerfile):"
+	@echo "  make docker-build  docker compose build"
+	@echo "  make docker-up     build + run on :8000, detached (real mode, needs .env)"
+	@echo "  make docker-mocks  build + run on :8000, attached (mocks mode, dep-free)"
+	@echo "  make docker-down   stop + remove the container"
+	@echo "  make docker-logs   follow container logs"
 
 # ---- git ------------------------------------------------------------
 _check-token:
@@ -80,3 +88,19 @@ smoke-a2a:
 
 smoke-eval:
 	@.venv/bin/python scripts/smoke_eval.py
+
+# ---- docker -----------------------------------------------------------
+docker-build:
+	docker compose build
+
+docker-up: docker-build
+	docker compose up -d
+
+docker-mocks:
+	USE_MOCKS=1 docker compose up --build
+
+docker-down:
+	docker compose down
+
+docker-logs:
+	docker compose logs -f
