@@ -91,9 +91,11 @@ Return JSON only, no prose:
 
     model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
     client = OpenAI()
+    # No max_tokens — reasoning models (e.g. glm-4.7-flash) burn budget on
+    # the internal "reasoning" field before writing content, so a cap here
+    # returns empty content with finish_reason=length.
     r = client.chat.completions.create(
         model=model,
-        max_tokens=300,
         temperature=0.0,
         messages=[{"role": "user", "content": prompt}],
     )

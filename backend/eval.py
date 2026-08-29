@@ -98,7 +98,35 @@ def get_eval_status(eval_id: str) -> EvalStatus:
 
 
 def _run_eval(eval_id: str, agent_url: str, test_set: list[dict], runs_per_q: int) -> None:
-    """Background thread: backend calls the agent, sandbox scores in isolation."""
+    """Background thread wrapper — catches everything so the scorecard always lands."""
+    try:
+        _run_eval_body(eval_id, agent_url, test_set, runs_per_q)
+    except Exception as e:
+        import traceback
+        with _LOCK:
+            for tile in _STATE[eval_id]["tiles"]:
+                if tile["status"] in ("pending", "running"):
+                    tile["status"] = "error"
+                    tile["reason"] = f"orchestrator crashed: {e}"
+        try:
+            _finalize_scorecard(eval_id, test_set)
+        except Exception:
+            # last-resort: write an empty scorecard so the poller stops
+            with _LOCK:
+                _STATE[eval_id]["scorecard"] = {
+                    "accuracy": f"0/{len(test_set)}",
+                    "accuracy_pct": 0.0,
+                    "consistency_drift": 0.0,
+                    "relevancy_pct": 0.0,
+                    "per_question": [
+                        {"q_idx": i, "acc": 0.0, "rel": 0.0, "drift": 0.0, "reason": f"orchestrator crashed: {traceback.format_exc()[:200]}"}
+                        for i in range(len(test_set))
+                    ],
+                }
+
+
+def _run_eval_body(eval_id: str, agent_url: str, test_set: list[dict], runs_per_q: int) -> None:
+    """Sandbox owns the agent hop; backend scores after each answer returns."""
     worker_source = _WORKER_SRC_PATH.read_text()
 
     tasks = []
@@ -165,8 +193,11 @@ def _finalize_scorecard(eval_id: str, test_set: list[dict]) -> None:
         rel = sum(t["relevancy"] for t in q_tiles) / len(q_tiles)
         responses = [t["answer"] for t in q_tiles if t["answer"]]
         if len(responses) >= 2:
-            c = judge.score_consistency(item["question"], responses)
-            per_q.append({"q_idx": q_idx, "acc": acc, "rel": rel, "drift": c["drift"], "reason": c["reason"]})
+            try:
+                c = judge.score_consistency(item["question"], responses)
+                per_q.append({"q_idx": q_idx, "acc": acc, "rel": rel, "drift": c["drift"], "reason": c["reason"]})
+            except Exception as e:
+                per_q.append({"q_idx": q_idx, "acc": acc, "rel": rel, "drift": 0.0, "reason": f"consistency judge failed: {e}"})
         else:
             per_q.append({"q_idx": q_idx, "acc": acc, "rel": rel, "drift": 0.0, "reason": "not enough runs"})
 
