@@ -57,7 +57,11 @@ def _send_a2a(agent_url: str, question: str) -> str:
             },
         },
     }
-    r = httpx.post(rpc_url, json=payload, timeout=60)
+    # 300s: the A2A hop goes tunnel -> backend -> Nosana -> reasoning model
+    # (glm-4.7-flash burns budget on hidden reasoning tokens), and under fan-out
+    # 8 sandboxes hit Nosana at once. 60s was enough for a lone happy path but
+    # tailed out the moment concurrency or model latency spiked.
+    r = httpx.post(rpc_url, json=payload, timeout=300)
     r.raise_for_status()
     body = r.json()
     if "error" in body:
