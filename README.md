@@ -7,9 +7,22 @@ Bring-your-own-agent evaluation platform. Connect via A2A, get accuracy + consis
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # fish: source .venv/bin/activate.fish
-pip install -r requirements.txt
-cp .env.template .env       # then fill in keys
+make install                # or: pip install -r requirements.txt
+cp .env.template .env       # then fill in keys (incl. GITHUB_TOKEN for `make push`)
 ```
+
+## Common commands (see `make help`)
+
+```bash
+make push            # push HEAD to origin/main
+make pull            # pull --rebase from origin/main
+make dev             # backend on :8000 (real)
+make dev-mocks       # backend on :8000 (dep-free mocks)
+make dev-frontend    # Next.js on :3000
+make smoke-a2a       # curl the accurate agent's card + one message
+```
+
+`GITHUB_TOKEN` in `.env` is read by the Makefile only — never printed, never committed.
 
 ## Ownership
 
