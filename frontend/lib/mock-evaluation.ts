@@ -125,7 +125,7 @@ const DRIFT: Record<AgentPresetId, number[]> = {
 const DRIFT_REASON: Record<AgentPresetId, string[]> = {
   accurate: ["All runs agree.", "Equivalent ingredient sets.", "All counts agree.", "All runs agree.", "All runs agree."],
   drifty: ["All runs agree.", "One response omits the required third ingredient.", "Three materially different island counts.", "All runs agree.", "Same fact with varying detail."],
-  wrong: ["Consistently wrong year.", "Equivalent ingredient sets.", "Two conflicting wrong counts.", "Consistently wrong language.", "Consistently wrong person."],
+  wrong: ["Consistently wrong year.", "Equivalent ingredient sets.", "Two scored runs agree; a third run timed out.", "Consistently wrong language.", "Consistently wrong person."],
 };
 
 function finalScorecard(agentId: AgentPresetId): Scorecard {
@@ -166,7 +166,7 @@ export function getMockSnapshot(agentId: AgentPresetId, completed: number, evalI
         status: isComplete ? (result.error ? "error" : result.score >= 0.7 ? "pass" : "fail") : isRunning ? "running" : "pending",
         answer: isComplete ? result.answer : "",
         score: isComplete ? result.score : 0,
-        relevancy: isComplete ? 0.9 : 0,
+        relevancy: isComplete && !result.error ? 0.9 : 0,
         reason: isComplete ? result.reason : "",
         run_id: `mock-${evalId.slice(-4)}-q${qIdx + 1}r${runIdx + 1}`,
       });
