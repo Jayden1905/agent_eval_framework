@@ -1,15 +1,16 @@
 """Sample agent 1: accurate + consistent.
 
-Claude Haiku, temperature 0, system prompt geared for precise repeatable answers.
-Backed by lazy anthropic import so `backend/server.py` in USE_MOCKS mode never
-requires the anthropic SDK to be installed.
+OpenAI-compatible endpoint (Nosana), temperature 0, system prompt geared for
+precise repeatable answers. Backed by lazy openai import so backend/server.py
+in USE_MOCKS mode never requires the openai SDK to be installed.
 """
 from __future__ import annotations
+
+import os
 
 
 NAME = "Singapore Trivia Agent (accurate)"
 DESCRIPTION = "Precise, consistent answers about Singapore history and geography."
-MODEL = "claude-haiku-4-5-20251001"
 SYSTEM = (
     "You are a Singapore trivia expert. Answer questions concisely and precisely. "
     "Give the same phrasing every time — do not vary your wording across identical questions. "
@@ -23,17 +24,20 @@ _client = None
 def _get_client():
     global _client
     if _client is None:
-        from anthropic import Anthropic
-        _client = Anthropic()
+        from openai import OpenAI
+        _client = OpenAI()
     return _client
 
 
 def responder(question: str) -> str:
-    r = _get_client().messages.create(
-        model=MODEL,
+    model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
+    r = _get_client().chat.completions.create(
+        model=model,
         max_tokens=200,
         temperature=0.0,
-        system=SYSTEM,
-        messages=[{"role": "user", "content": question}],
+        messages=[
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": question},
+        ],
     )
-    return r.content[0].text.strip()
+    return (r.choices[0].message.content or "").strip()

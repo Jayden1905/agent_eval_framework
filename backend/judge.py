@@ -1,76 +1,22 @@
-"""Judges — accuracy (per-run) and consistency (across-runs).
+"""Judges — accuracy runs inside the sandbox (see backend/sandbox_worker.py);
+consistency runs here in the orchestrator once all runs of a question land.
 
-- Accuracy: DeepEval GEval with a "does actual_output match expected_output" rubric.
-- Consistency: DeepEval GEval used pairwise/cluster-style — group N responses by
-  semantic equivalence, drift = 1 - (largest_cluster / N).
+- Accuracy: DeepEval GEval + AnswerRelevancy (per-run, inside sandbox).
+- Consistency: cluster N responses by semantic equivalence, drift = 1 - largest/N.
 
 DeepEval doesn't ship a built-in cross-run consistency metric; the clustering
-logic here is ours (see docs guide, `guides-ai-agent-evaluation`). That gap is
-the novelty story for the pitch.
+logic here is ours. That gap is the novelty story for the pitch.
+
+Both sides talk to the Nosana-hosted OpenAI-compatible endpoint via the openai
+SDK (which reads OPENAI_BASE_URL + OPENAI_API_KEY from env, mirrored from the
+NOSANA_* vars in backend/server.py at startup).
 """
 from __future__ import annotations
 
 import json
 import os
 
-from anthropic import Anthropic
-
-# DeepEval is used for accuracy; we route it through GEval so the criteria are
-# explicit and tunable. If DeepEval refuses to init in the sandbox for any
-# reason, `_geval_accuracy_fallback` gives us a hand-rolled equivalent.
-try:
-    from deepeval.metrics import GEval
-    from deepeval.test_case import LLMTestCase, LLMTestCaseParams
-    _DEEPEVAL_OK = True
-except Exception:
-    _DEEPEVAL_OK = False
-
-
-_ACCURACY_CRITERIA = (
-    "Determine whether the 'actual output' answers the question in a way that is "
-    "semantically equivalent to the 'expected output'. Different wording is fine. "
-    "Missing key facts, wrong facts, or contradictions with expected output are not fine. "
-    "For questions with ranges or multiple acceptable answers, the expected output states "
-    "the acceptable range — score high if the actual output falls within it."
-)
-
-
-def score_accuracy(question: str, expected: str, actual: str) -> dict:
-    """Returns {"score": 0..1, "reason": str}."""
-    if _DEEPEVAL_OK:
-        metric = GEval(
-            name="accuracy",
-            criteria=_ACCURACY_CRITERIA,
-            evaluation_params=[
-                LLMTestCaseParams.INPUT,
-                LLMTestCaseParams.EXPECTED_OUTPUT,
-                LLMTestCaseParams.ACTUAL_OUTPUT,
-            ],
-        )
-        tc = LLMTestCase(input=question, expected_output=expected, actual_output=actual)
-        metric.measure(tc)
-        return {"score": float(metric.score), "reason": metric.reason or ""}
-    return _geval_accuracy_fallback(question, expected, actual)
-
-
-def _geval_accuracy_fallback(question: str, expected: str, actual: str) -> dict:
-    """Used only if DeepEval fails to import. Same rubric, direct Claude call."""
-    client = Anthropic()
-    prompt = f"""{_ACCURACY_CRITERIA}
-
-Question: {question}
-Expected output: {expected}
-Actual output: {actual}
-
-Return JSON only:
-{{"score": <float 0.0-1.0>, "reason": "<one sentence>"}}"""
-    r = client.messages.create(
-        model="claude-sonnet-5",
-        max_tokens=200,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    text = r.content[0].text
-    return _extract_json(text)
+from openai import OpenAI
 
 
 def score_consistency(question: str, responses: list[str]) -> dict:
@@ -97,13 +43,15 @@ Group response indices (1-based) by semantic equivalence. Two responses are equi
 Return JSON only, no prose:
 {{"clusters": [[1,2],[3]], "reason": "<one sentence>"}}"""
 
-    client = Anthropic()
-    r = client.messages.create(
-        model="claude-sonnet-5",
+    model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
+    client = OpenAI()
+    r = client.chat.completions.create(
+        model=model,
         max_tokens=300,
+        temperature=0.0,
         messages=[{"role": "user", "content": prompt}],
     )
-    parsed = _extract_json(r.content[0].text)
+    parsed = _extract_json(r.choices[0].message.content or "")
     clusters = parsed.get("clusters", [[i + 1] for i in range(len(responses))])
     reason = parsed.get("reason", "")
     drift = compute_drift(clusters, len(responses))
@@ -132,7 +80,6 @@ def _extract_json(text: str) -> dict:
 
 
 if __name__ == "__main__":
-    # self-check the drift math (non-trivial → one runnable check per ponytail)
     assert compute_drift([[1, 2, 3]], 3) == 0.0
     assert abs(compute_drift([[1, 2], [3]], 3) - 1 / 3) < 1e-9
     assert abs(compute_drift([[1], [2], [3]], 3) - 2 / 3) < 1e-9

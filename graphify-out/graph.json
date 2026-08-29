@@ -1,0 +1,3215 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "a2a_pluggable_responder_pattern",
+        "label": "A2A pluggable responder wiring",
+        "nodes": [
+          "agents_a2a_server_mount",
+          "agents_a2a_server_responder_type",
+          "agents_agent_accurate_responder",
+          "agents_agent_drifty_responder",
+          "agents_agent_wrong_responder"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "agents/a2a_server.py"
+      },
+      {
+        "id": "demo_agent_trio_failure_modes",
+        "label": "Demo trio: correct / drifty / wrong failure modes",
+        "nodes": [
+          "agents_agent_accurate_responder",
+          "agents_agent_drifty_responder",
+          "agents_agent_wrong_responder"
+        ],
+        "relation": "form",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "README.md"
+      },
+      {
+        "id": "eval_orchestration_pipeline",
+        "label": "Eval orchestration pipeline (HTTP to sandbox worker)",
+        "nodes": [
+          "backend_server_start_eval",
+          "backend_eval_start_eval",
+          "backend_eval__run_eval",
+          "backend_sandbox_fan_out",
+          "backend_sandbox_run_worker_in_sandbox",
+          "backend_sandbox_worker_main"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "backend/eval.py"
+      },
+      {
+        "id": "tile_shape_contract",
+        "label": "Tile / EvalStatus shape mirrored across backend, mocks, and TS",
+        "nodes": [
+          "backend_eval_tile",
+          "backend_eval_evalstatus",
+          "backend_mocks_get_eval_status",
+          "frontend_starter_tile_type",
+          "frontend_starter_evalstatus_type"
+        ],
+        "relation": "form",
+        "confidence": "INFERRED",
+        "confidence_score": 0.85,
+        "source_file": "backend/eval.py"
+      },
+      {
+        "id": "a2a_wire_protocol",
+        "label": "A2A JSON-RPC v1.0 wire protocol (agent card + message/send)",
+        "nodes": [
+          "backend_a2a_client_discover",
+          "backend_a2a_client__rpc_url_from_card",
+          "backend_a2a_client_send_message",
+          "backend_sandbox_worker__send_a2a"
+        ],
+        "relation": "implement",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "backend/a2a_client.py"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "hack.py",
+      "file_type": "code",
+      "source_file": "hack.py",
+      "source_location": "L1",
+      "id": "hack_py",
+      "community": 9,
+      "norm_label": "hack.py"
+    },
+    {
+      "label": "AgentEval \u2014 Streamlit UI.  Dev 1 owns this file. During Phase 1 use `platform.mo",
+      "file_type": "rationale",
+      "source_file": "hack.py",
+      "source_location": "L1",
+      "id": "daytona_hackathon_hack_rationale_1",
+      "community": 9,
+      "norm_label": "agenteval \u2014 streamlit ui.  dev 1 owns this file. during phase 1 use `platform.mo"
+    },
+    {
+      "label": "a2a_server.py",
+      "file_type": "code",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L1",
+      "id": "agents_a2a_server_py",
+      "community": 0,
+      "norm_label": "a2a_server.py"
+    },
+    {
+      "label": "_build_card()",
+      "file_type": "code",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L23",
+      "id": "agents_a2a_server_build_card",
+      "community": 0,
+      "norm_label": "_build_card()"
+    },
+    {
+      "label": "mount()",
+      "file_type": "code",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L41",
+      "id": "agents_a2a_server_mount",
+      "community": 0,
+      "norm_label": "mount()"
+    },
+    {
+      "label": "Shared A2A HTTP scaffold \u2014 mountable onto a FastAPI/Starlette app.  Two endpoint",
+      "file_type": "rationale",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L1",
+      "id": "agents_a2a_server_rationale_1",
+      "community": 0,
+      "norm_label": "shared a2a http scaffold \u2014 mountable onto a fastapi/starlette app.  two endpoint"
+    },
+    {
+      "label": "Attach agent-card + JSON-RPC routes to `app` under `prefix`.      Example:",
+      "file_type": "rationale",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L42",
+      "id": "agents_a2a_server_rationale_42",
+      "community": 0,
+      "norm_label": "attach agent-card + json-rpc routes to `app` under `prefix`.      example:"
+    },
+    {
+      "label": "agent_drifty.py",
+      "file_type": "code",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L1",
+      "id": "agents_agent_drifty_py",
+      "community": 0,
+      "norm_label": "agent_drifty.py"
+    },
+    {
+      "label": "_get_client()",
+      "file_type": "code",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L27",
+      "id": "agents_agent_drifty_get_client",
+      "community": 0,
+      "norm_label": "_get_client()"
+    },
+    {
+      "label": "responder()",
+      "file_type": "code",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L35",
+      "id": "agents_agent_drifty_responder",
+      "community": 0,
+      "norm_label": "responder()"
+    },
+    {
+      "label": "Sample agent 2: accurate-ish but INCONSISTENT.  Same domain as agent_accurate, b",
+      "file_type": "rationale",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L1",
+      "id": "agents_agent_drifty_rationale_1",
+      "community": 0,
+      "norm_label": "sample agent 2: accurate-ish but inconsistent.  same domain as agent_accurate, b"
+    },
+    {
+      "label": "__init__.py",
+      "file_type": "code",
+      "source_file": "agents/__init__.py",
+      "source_location": "L1",
+      "id": "agents_init_py",
+      "community": 10,
+      "norm_label": "__init__.py"
+    },
+    {
+      "label": "agent_accurate.py",
+      "file_type": "code",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L1",
+      "id": "agents_agent_accurate_py",
+      "community": 0,
+      "norm_label": "agent_accurate.py"
+    },
+    {
+      "label": "_get_client()",
+      "file_type": "code",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L23",
+      "id": "agents_agent_accurate_get_client",
+      "community": 0,
+      "norm_label": "_get_client()"
+    },
+    {
+      "label": "responder()",
+      "file_type": "code",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L31",
+      "id": "agents_agent_accurate_responder",
+      "community": 0,
+      "norm_label": "responder()"
+    },
+    {
+      "label": "Sample agent 1: accurate + consistent.  Claude Haiku, temperature 0, system prom",
+      "file_type": "rationale",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L1",
+      "id": "agents_agent_accurate_rationale_1",
+      "community": 0,
+      "norm_label": "sample agent 1: accurate + consistent.  claude haiku, temperature 0, system prom"
+    },
+    {
+      "label": "agent_wrong.py",
+      "file_type": "code",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L1",
+      "id": "agents_agent_wrong_py",
+      "community": 0,
+      "norm_label": "agent_wrong.py"
+    },
+    {
+      "label": "_get_client()",
+      "file_type": "code",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L25",
+      "id": "agents_agent_wrong_get_client",
+      "community": 0,
+      "norm_label": "_get_client()"
+    },
+    {
+      "label": "responder()",
+      "file_type": "code",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L33",
+      "id": "agents_agent_wrong_responder",
+      "community": 0,
+      "norm_label": "responder()"
+    },
+    {
+      "label": "Sample agent 3: confidently WRONG.  Deterministic but slots in plausible-soundin",
+      "file_type": "rationale",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L1",
+      "id": "agents_agent_wrong_rationale_1",
+      "community": 0,
+      "norm_label": "sample agent 3: confidently wrong.  deterministic but slots in plausible-soundin"
+    },
+    {
+      "label": "server.py",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": "L1",
+      "id": "backend_server_py",
+      "community": 1,
+      "norm_label": "server.py"
+    },
+    {
+      "label": "DiscoverBody",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": "L49",
+      "id": "backend_server_discoverbody",
+      "community": 1,
+      "norm_label": "discoverbody"
+    },
+    {
+      "label": "BaseModel",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "id": "basemodel",
+      "community": 1,
+      "norm_label": "basemodel"
+    },
+    {
+      "label": "TestCase",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": "L53",
+      "id": "backend_server_testcase",
+      "community": 1,
+      "norm_label": "testcase"
+    },
+    {
+      "label": "EvalBody",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": "L58",
+      "id": "backend_server_evalbody",
+      "community": 1,
+      "norm_label": "evalbody"
+    },
+    {
+      "label": "discover()",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": "L65",
+      "id": "backend_server_discover",
+      "community": 6,
+      "norm_label": "discover()"
+    },
+    {
+      "label": "start_eval()",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": "L73",
+      "id": "backend_server_start_eval",
+      "community": 1,
+      "norm_label": "start_eval()"
+    },
+    {
+      "label": "eval_status()",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": "L80",
+      "id": "backend_server_eval_status",
+      "community": 1,
+      "norm_label": "eval_status()"
+    },
+    {
+      "label": "health()",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": "L85",
+      "id": "backend_server_health",
+      "community": 1,
+      "norm_label": "health()"
+    },
+    {
+      "label": "FastAPI HTTP layer \u2014 eval platform + demo agents in ONE process.  Frontend (Next",
+      "file_type": "rationale",
+      "source_file": "backend/server.py",
+      "source_location": "L1",
+      "id": "backend_server_rationale_1",
+      "community": 1,
+      "norm_label": "fastapi http layer \u2014 eval platform + demo agents in one process.  frontend (next"
+    },
+    {
+      "label": "sandbox_worker.py",
+      "file_type": "code",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L1",
+      "id": "backend_sandbox_worker_py",
+      "community": 7,
+      "norm_label": "sandbox_worker.py"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L17",
+      "id": "backend_sandbox_worker_main",
+      "community": 7,
+      "norm_label": "main()"
+    },
+    {
+      "label": "_send_a2a()",
+      "file_type": "code",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L42",
+      "id": "backend_sandbox_worker_send_a2a",
+      "community": 7,
+      "norm_label": "_send_a2a()"
+    },
+    {
+      "label": "_score()",
+      "file_type": "code",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L76",
+      "id": "backend_sandbox_worker_score",
+      "community": 7,
+      "norm_label": "_score()"
+    },
+    {
+      "label": "_write()",
+      "file_type": "code",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L102",
+      "id": "backend_sandbox_worker_write",
+      "community": 7,
+      "norm_label": "_write()"
+    },
+    {
+      "label": "Runs INSIDE a Daytona sandbox \u2014 one process per (question, run_idx) tile.  Reads",
+      "file_type": "rationale",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L1",
+      "id": "backend_sandbox_worker_rationale_1",
+      "community": 7,
+      "norm_label": "runs inside a daytona sandbox \u2014 one process per (question, run_idx) tile.  reads"
+    },
+    {
+      "label": "Discover agent card + send message/send. See platform/a2a_client.py for parity.",
+      "file_type": "rationale",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L43",
+      "id": "backend_sandbox_worker_rationale_43",
+      "community": 7,
+      "norm_label": "discover agent card + send message/send. see platform/a2a_client.py for parity."
+    },
+    {
+      "label": "DeepEval GEval \u2014 accuracy rubric.",
+      "file_type": "rationale",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L77",
+      "id": "backend_sandbox_worker_rationale_77",
+      "community": 7,
+      "norm_label": "deepeval geval \u2014 accuracy rubric."
+    },
+    {
+      "label": "__init__.py",
+      "file_type": "code",
+      "source_file": "backend/__init__.py",
+      "source_location": "L1",
+      "id": "backend_init_py",
+      "community": 11,
+      "norm_label": "__init__.py"
+    },
+    {
+      "label": "a2a_client.py",
+      "file_type": "code",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L1",
+      "id": "backend_a2a_client_py",
+      "community": 4,
+      "norm_label": "a2a_client.py"
+    },
+    {
+      "label": "discover()",
+      "file_type": "code",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L16",
+      "id": "backend_a2a_client_discover",
+      "community": 4,
+      "norm_label": "discover()"
+    },
+    {
+      "label": "_rpc_url_from_card()",
+      "file_type": "code",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L24",
+      "id": "backend_a2a_client_rpc_url_from_card",
+      "community": 4,
+      "norm_label": "_rpc_url_from_card()"
+    },
+    {
+      "label": "send_message()",
+      "file_type": "code",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L35",
+      "id": "backend_a2a_client_send_message",
+      "community": 4,
+      "norm_label": "send_message()"
+    },
+    {
+      "label": "Thin A2A client \u2014 discovery + message/send.  We speak the A2A wire format direct",
+      "file_type": "rationale",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L1",
+      "id": "backend_a2a_client_rationale_1",
+      "community": 4,
+      "norm_label": "thin a2a client \u2014 discovery + message/send.  we speak the a2a wire format direct"
+    },
+    {
+      "label": "GET {url}/.well-known/agent-card.json and return parsed JSON.",
+      "file_type": "rationale",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L17",
+      "id": "backend_a2a_client_rationale_17",
+      "community": 4,
+      "norm_label": "get {url}/.well-known/agent-card.json and return parsed json."
+    },
+    {
+      "label": "Find the JSON-RPC endpoint from an agent card (v1.0 shape).      Falls back to `",
+      "file_type": "rationale",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L25",
+      "id": "backend_a2a_client_rationale_25",
+      "community": 4,
+      "norm_label": "find the json-rpc endpoint from an agent card (v1.0 shape).      falls back to `"
+    },
+    {
+      "label": "Send `text` to the agent via A2A message/send. Returns the agent's reply text.",
+      "file_type": "rationale",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L36",
+      "id": "backend_a2a_client_rationale_36",
+      "community": 4,
+      "norm_label": "send `text` to the agent via a2a message/send. returns the agent's reply text."
+    },
+    {
+      "label": "sandbox.py",
+      "file_type": "code",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L1",
+      "id": "backend_sandbox_py",
+      "community": 5,
+      "norm_label": "sandbox.py"
+    },
+    {
+      "label": "_client()",
+      "file_type": "code",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L21",
+      "id": "backend_sandbox_client",
+      "community": 5,
+      "norm_label": "_client()"
+    },
+    {
+      "label": "run_worker_in_sandbox()",
+      "file_type": "code",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L25",
+      "id": "backend_sandbox_run_worker_in_sandbox",
+      "community": 5,
+      "norm_label": "run_worker_in_sandbox()"
+    },
+    {
+      "label": "fan_out()",
+      "file_type": "code",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L83",
+      "id": "backend_sandbox_fan_out",
+      "community": 5,
+      "norm_label": "fan_out()"
+    },
+    {
+      "label": "_upload_text()",
+      "file_type": "code",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L119",
+      "id": "backend_sandbox_upload_text",
+      "community": 5,
+      "norm_label": "_upload_text()"
+    },
+    {
+      "label": "Daytona sandbox wrapper.  Declarative image: no pre-baked snapshot needed. First",
+      "file_type": "rationale",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L1",
+      "id": "backend_sandbox_rationale_1",
+      "community": 5,
+      "norm_label": "daytona sandbox wrapper.  declarative image: no pre-baked snapshot needed. first"
+    },
+    {
+      "label": "Spawn one sandbox, upload worker.py, run it, return the JSON result.      Return",
+      "file_type": "rationale",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L32",
+      "id": "backend_sandbox_rationale_32",
+      "community": 5,
+      "norm_label": "spawn one sandbox, upload worker.py, run it, return the json result.      return"
+    },
+    {
+      "label": "Run many (question, run_idx) tasks in parallel across sandboxes.      tasks: [{\"",
+      "file_type": "rationale",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L89",
+      "id": "backend_sandbox_rationale_89",
+      "community": 5,
+      "norm_label": "run many (question, run_idx) tasks in parallel across sandboxes.      tasks: [{\""
+    },
+    {
+      "label": "judge.py",
+      "file_type": "code",
+      "source_file": "backend/judge.py",
+      "source_location": "L1",
+      "id": "backend_judge_py",
+      "community": 3,
+      "norm_label": "judge.py"
+    },
+    {
+      "label": "score_accuracy()",
+      "file_type": "code",
+      "source_file": "backend/judge.py",
+      "source_location": "L38",
+      "id": "backend_judge_score_accuracy",
+      "community": 3,
+      "norm_label": "score_accuracy()"
+    },
+    {
+      "label": "_geval_accuracy_fallback()",
+      "file_type": "code",
+      "source_file": "backend/judge.py",
+      "source_location": "L56",
+      "id": "backend_judge_geval_accuracy_fallback",
+      "community": 3,
+      "norm_label": "_geval_accuracy_fallback()"
+    },
+    {
+      "label": "score_consistency()",
+      "file_type": "code",
+      "source_file": "backend/judge.py",
+      "source_location": "L76",
+      "id": "backend_judge_score_consistency",
+      "community": 3,
+      "norm_label": "score_consistency()"
+    },
+    {
+      "label": "compute_drift()",
+      "file_type": "code",
+      "source_file": "backend/judge.py",
+      "source_location": "L113",
+      "id": "backend_judge_compute_drift",
+      "community": 3,
+      "norm_label": "compute_drift()"
+    },
+    {
+      "label": "_extract_json()",
+      "file_type": "code",
+      "source_file": "backend/judge.py",
+      "source_location": "L120",
+      "id": "backend_judge_extract_json",
+      "community": 3,
+      "norm_label": "_extract_json()"
+    },
+    {
+      "label": "Judges \u2014 accuracy (per-run) and consistency (across-runs).  - Accuracy: DeepEval",
+      "file_type": "rationale",
+      "source_file": "backend/judge.py",
+      "source_location": "L1",
+      "id": "backend_judge_rationale_1",
+      "community": 3,
+      "norm_label": "judges \u2014 accuracy (per-run) and consistency (across-runs).  - accuracy: deepeval"
+    },
+    {
+      "label": "Returns {\"score\": 0..1, \"reason\": str}.",
+      "file_type": "rationale",
+      "source_file": "backend/judge.py",
+      "source_location": "L39",
+      "id": "backend_judge_rationale_39",
+      "community": 3,
+      "norm_label": "returns {\"score\": 0..1, \"reason\": str}."
+    },
+    {
+      "label": "Used only if DeepEval fails to import. Same rubric, direct Claude call.",
+      "file_type": "rationale",
+      "source_file": "backend/judge.py",
+      "source_location": "L57",
+      "id": "backend_judge_rationale_57",
+      "community": 3,
+      "norm_label": "used only if deepeval fails to import. same rubric, direct claude call."
+    },
+    {
+      "label": "Cluster responses by semantic equivalence, compute drift.      drift = 1 - (larg",
+      "file_type": "rationale",
+      "source_file": "backend/judge.py",
+      "source_location": "L77",
+      "id": "backend_judge_rationale_77",
+      "community": 3,
+      "norm_label": "cluster responses by semantic equivalence, compute drift.      drift = 1 - (larg"
+    },
+    {
+      "label": "Grab the first {...} block from a model response.",
+      "file_type": "rationale",
+      "source_file": "backend/judge.py",
+      "source_location": "L121",
+      "id": "backend_judge_rationale_121",
+      "community": 3,
+      "norm_label": "grab the first {...} block from a model response."
+    },
+    {
+      "label": "eval.py",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L1",
+      "id": "backend_eval_py",
+      "community": 2,
+      "norm_label": "eval.py"
+    },
+    {
+      "label": "AgentCard",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L19",
+      "id": "backend_eval_agentcard",
+      "community": 2,
+      "norm_label": "agentcard"
+    },
+    {
+      "label": "TypedDict",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "id": "typeddict",
+      "community": 2,
+      "norm_label": "typeddict"
+    },
+    {
+      "label": "Tile",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L30",
+      "id": "backend_eval_tile",
+      "community": 2,
+      "norm_label": "tile"
+    },
+    {
+      "label": "Scorecard",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L38",
+      "id": "backend_eval_scorecard",
+      "community": 2,
+      "norm_label": "scorecard"
+    },
+    {
+      "label": "EvalStatus",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L45",
+      "id": "backend_eval_evalstatus",
+      "community": 2,
+      "norm_label": "evalstatus"
+    },
+    {
+      "label": "discover_agent()",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L56",
+      "id": "backend_eval_discover_agent",
+      "community": 6,
+      "norm_label": "discover_agent()"
+    },
+    {
+      "label": "start_eval()",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L60",
+      "id": "backend_eval_start_eval",
+      "community": 1,
+      "norm_label": "start_eval()"
+    },
+    {
+      "label": "get_eval_status()",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L87",
+      "id": "backend_eval_get_eval_status",
+      "community": 1,
+      "norm_label": "get_eval_status()"
+    },
+    {
+      "label": "_run_eval()",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L96",
+      "id": "backend_eval_run_eval",
+      "community": 2,
+      "norm_label": "_run_eval()"
+    },
+    {
+      "label": "_finalize_scorecard()",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": "L149",
+      "id": "backend_eval_finalize_scorecard",
+      "community": 2,
+      "norm_label": "_finalize_scorecard()"
+    },
+    {
+      "label": "Public API for the eval platform. Frontend (hack.py) imports from here.  Dev 1:",
+      "file_type": "rationale",
+      "source_file": "backend/eval.py",
+      "source_location": "L1",
+      "id": "backend_eval_rationale_1",
+      "community": 2,
+      "norm_label": "public api for the eval platform. frontend (hack.py) imports from here.  dev 1:"
+    },
+    {
+      "label": "Whatever we discover at {url}/.well-known/agent-card.json.      Passthrough dict",
+      "file_type": "rationale",
+      "source_file": "backend/eval.py",
+      "source_location": "L20",
+      "id": "backend_eval_rationale_20",
+      "community": 2,
+      "norm_label": "whatever we discover at {url}/.well-known/agent-card.json.      passthrough dict"
+    },
+    {
+      "label": "Background thread: fan out sandboxes, then aggregate.",
+      "file_type": "rationale",
+      "source_file": "backend/eval.py",
+      "source_location": "L97",
+      "id": "backend_eval_rationale_97",
+      "community": 2,
+      "norm_label": "background thread: fan out sandboxes, then aggregate."
+    },
+    {
+      "label": "Compute per-question accuracy + consistency drift, roll up.",
+      "file_type": "rationale",
+      "source_file": "backend/eval.py",
+      "source_location": "L150",
+      "id": "backend_eval_rationale_150",
+      "community": 2,
+      "norm_label": "compute per-question accuracy + consistency drift, roll up."
+    },
+    {
+      "label": "mocks.py",
+      "file_type": "code",
+      "source_file": "backend/mocks.py",
+      "source_location": "L1",
+      "id": "backend_mocks_py",
+      "community": 1,
+      "norm_label": "mocks.py"
+    },
+    {
+      "label": "discover_agent()",
+      "file_type": "code",
+      "source_file": "backend/mocks.py",
+      "source_location": "L21",
+      "id": "backend_mocks_discover_agent",
+      "community": 6,
+      "norm_label": "discover_agent()"
+    },
+    {
+      "label": "start_eval()",
+      "file_type": "code",
+      "source_file": "backend/mocks.py",
+      "source_location": "L31",
+      "id": "backend_mocks_start_eval",
+      "community": 1,
+      "norm_label": "start_eval()"
+    },
+    {
+      "label": "get_eval_status()",
+      "file_type": "code",
+      "source_file": "backend/mocks.py",
+      "source_location": "L37",
+      "id": "backend_mocks_get_eval_status",
+      "community": 1,
+      "norm_label": "get_eval_status()"
+    },
+    {
+      "label": "Fake data with the exact shape from backend/eval.py.  Dev 1 imports from here to",
+      "file_type": "rationale",
+      "source_file": "backend/mocks.py",
+      "source_location": "L1",
+      "id": "backend_mocks_rationale_1",
+      "community": 1,
+      "norm_label": "fake data with the exact shape from backend/eval.py.  dev 1 imports from here to"
+    },
+    {
+      "label": "Simulates a run that takes ~15s and gradually fills tiles.",
+      "file_type": "rationale",
+      "source_file": "backend/mocks.py",
+      "source_location": "L38",
+      "id": "backend_mocks_rationale_38",
+      "community": 1,
+      "norm_label": "simulates a run that takes ~15s and gradually fills tiles."
+    },
+    {
+      "label": "# NOTE: intentionally does NOT import from backend.eval \u2014 Dev 1 must be able to",
+      "file_type": "rationale",
+      "source_file": "backend/mocks.py",
+      "source_location": "L13",
+      "id": "backend_mocks_rationale_13",
+      "community": 1,
+      "norm_label": "# note: intentionally does not import from backend.eval \u2014 dev 1 must be able to"
+    },
+    {
+      "label": "AgentEval Streamlit UI",
+      "file_type": "code",
+      "source_file": "hack.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "hack_main",
+      "community": 8,
+      "norm_label": "agenteval streamlit ui"
+    },
+    {
+      "label": "_build_card() \u2014 agent card dict",
+      "file_type": "code",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L23-38",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "agents_a2a_server__build_card",
+      "community": 0,
+      "norm_label": "_build_card() \u2014 agent card dict"
+    },
+    {
+      "label": "agent_card route handler (GET)",
+      "file_type": "code",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L53-55",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "agents_a2a_server_agent_card",
+      "community": 0,
+      "norm_label": "agent_card route handler (get)"
+    },
+    {
+      "label": "jsonrpc route handler (POST message/send)",
+      "file_type": "code",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L57-84",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "agents_a2a_server_jsonrpc",
+      "community": 0,
+      "norm_label": "jsonrpc route handler (post message/send)"
+    },
+    {
+      "label": "Responder = Callable[[str], str]",
+      "file_type": "code",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L20",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "agents_a2a_server_responder_type",
+      "community": 0,
+      "norm_label": "responder = callable[[str], str]"
+    },
+    {
+      "label": "accurate agent lazy Anthropic client",
+      "file_type": "code",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L23-28",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "agents_agent_accurate__get_client",
+      "community": 0,
+      "norm_label": "accurate agent lazy anthropic client"
+    },
+    {
+      "label": "drifty agent lazy Anthropic client",
+      "file_type": "code",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L27-32",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "agents_agent_drifty__get_client",
+      "community": 0,
+      "norm_label": "drifty agent lazy anthropic client"
+    },
+    {
+      "label": "wrong agent lazy Anthropic client",
+      "file_type": "code",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L25-30",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "agents_agent_wrong__get_client",
+      "community": 0,
+      "norm_label": "wrong agent lazy anthropic client"
+    },
+    {
+      "label": "Demo agent URL registry",
+      "file_type": "document",
+      "source_file": "agents/agent_urls.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "agents_agent_urls_endpoints",
+      "community": 0,
+      "norm_label": "demo agent url registry"
+    },
+    {
+      "label": "Project Python dependencies",
+      "file_type": "document",
+      "source_file": "requirements.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "requirements_deps",
+      "community": 8,
+      "norm_label": "project python dependencies"
+    },
+    {
+      "label": "AgentEval platform (bring-your-own-agent eval)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_agenteval_platform",
+      "community": 8,
+      "norm_label": "agenteval platform (bring-your-own-agent eval)"
+    },
+    {
+      "label": "A2A v1.0 protocol (wire-compatible subset)",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": "L87-89",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_a2a_protocol",
+      "community": 0,
+      "norm_label": "a2a v1.0 protocol (wire-compatible subset)"
+    },
+    {
+      "label": "DeepEval \u2014 accuracy metrics + GEval rubric",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": "L82-85",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_deepeval",
+      "community": 8,
+      "norm_label": "deepeval \u2014 accuracy metrics + geval rubric"
+    },
+    {
+      "label": "Daytona \u2014 per-run sandbox isolation",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": "L82-93",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_daytona",
+      "community": 8,
+      "norm_label": "daytona \u2014 per-run sandbox isolation"
+    },
+    {
+      "label": "Consistency-drift metric (novelty over DeepEval)",
+      "file_type": "rationale",
+      "source_file": "README.md",
+      "source_location": "L84",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_consistency_drift",
+      "community": 8,
+      "norm_label": "consistency-drift metric (novelty over deepeval)"
+    },
+    {
+      "label": "Two-process (uvicorn + Next.js) architecture",
+      "file_type": "rationale",
+      "source_file": "README.md",
+      "source_location": "L29-37",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme_two_process_architecture",
+      "community": 8,
+      "norm_label": "two-process (uvicorn + next.js) architecture"
+    },
+    {
+      "label": "USE_MOCKS module switch",
+      "file_type": "code",
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_server_use_mocks",
+      "community": 6,
+      "norm_label": "use_mocks module switch"
+    },
+    {
+      "label": "Worker _send_a2a (A2A call inside sandbox)",
+      "file_type": "code",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_sandbox_worker__send_a2a",
+      "community": 4,
+      "norm_label": "worker _send_a2a (a2a call inside sandbox)"
+    },
+    {
+      "label": "Worker _score (DeepEval GEval inside sandbox)",
+      "file_type": "code",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_sandbox_worker__score",
+      "community": 3,
+      "norm_label": "worker _score (deepeval geval inside sandbox)"
+    },
+    {
+      "label": "Worker _write (dumps result.json)",
+      "file_type": "code",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_sandbox_worker__write",
+      "community": 7,
+      "norm_label": "worker _write (dumps result.json)"
+    },
+    {
+      "label": "A2A _rpc_url_from_card",
+      "file_type": "code",
+      "source_file": "backend/a2a_client.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_a2a_client__rpc_url_from_card",
+      "community": 4,
+      "norm_label": "a2a _rpc_url_from_card"
+    },
+    {
+      "label": "Sandbox _upload_text helper",
+      "file_type": "code",
+      "source_file": "backend/sandbox.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_sandbox__upload_text",
+      "community": 5,
+      "norm_label": "sandbox _upload_text helper"
+    },
+    {
+      "label": "Declarative Daytona image spec",
+      "file_type": "code",
+      "source_file": "backend/sandbox.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_sandbox__image",
+      "community": 5,
+      "norm_label": "declarative daytona image spec"
+    },
+    {
+      "label": "_geval_accuracy_fallback (direct Claude)",
+      "file_type": "code",
+      "source_file": "backend/judge.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_judge__geval_accuracy_fallback",
+      "community": 3,
+      "norm_label": "_geval_accuracy_fallback (direct claude)"
+    },
+    {
+      "label": "_extract_json (parse LLM JSON block)",
+      "file_type": "code",
+      "source_file": "backend/judge.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_judge__extract_json",
+      "community": 3,
+      "norm_label": "_extract_json (parse llm json block)"
+    },
+    {
+      "label": "eval._run_eval (background thread)",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_eval__run_eval",
+      "community": 1,
+      "norm_label": "eval._run_eval (background thread)"
+    },
+    {
+      "label": "_finalize_scorecard (aggregate)",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_eval__finalize_scorecard",
+      "community": 1,
+      "norm_label": "_finalize_scorecard (aggregate)"
+    },
+    {
+      "label": "_STATE in-process eval registry",
+      "file_type": "code",
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "backend_eval__state",
+      "community": 1,
+      "norm_label": "_state in-process eval registry"
+    },
+    {
+      "label": "TS AgentCard type",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_agentcard_type",
+      "community": 2,
+      "norm_label": "ts agentcard type"
+    },
+    {
+      "label": "TS Tile type",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_tile_type",
+      "community": 2,
+      "norm_label": "ts tile type"
+    },
+    {
+      "label": "TS Scorecard type",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_scorecard_type",
+      "community": 2,
+      "norm_label": "ts scorecard type"
+    },
+    {
+      "label": "TS EvalStatus type",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_evalstatus_type",
+      "community": 2,
+      "norm_label": "ts evalstatus type"
+    },
+    {
+      "label": "TS discover() HTTP wrapper",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_discover_fn",
+      "community": 6,
+      "norm_label": "ts discover() http wrapper"
+    },
+    {
+      "label": "TS startEval() HTTP wrapper",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_starteval_fn",
+      "community": 6,
+      "norm_label": "ts starteval() http wrapper"
+    },
+    {
+      "label": "TS getStatus() HTTP wrapper",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_getstatus_fn",
+      "community": 6,
+      "norm_label": "ts getstatus() http wrapper"
+    },
+    {
+      "label": "Next.js demo page (poll loop)",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_page_component",
+      "community": 6,
+      "norm_label": "next.js demo page (poll loop)"
+    },
+    {
+      "label": "DEMO_SET Singapore trivia fixtures",
+      "file_type": "document",
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_starter_demo_set",
+      "community": 6,
+      "norm_label": "demo_set singapore trivia fixtures"
+    },
+    {
+      "label": "Frontend README API contract summary",
+      "file_type": "document",
+      "source_file": "frontend/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_readme_api_contract",
+      "community": 1,
+      "norm_label": "frontend readme api contract summary"
+    },
+    {
+      "label": "Frontend README dev loop (uvicorn + next dev)",
+      "file_type": "document",
+      "source_file": "frontend/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "frontend_readme_dev_loop",
+      "community": 6,
+      "norm_label": "frontend readme dev loop (uvicorn + next dev)"
+    }
+  ],
+  "links": [
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "hack.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "daytona_hackathon_hack_rationale_1",
+      "target": "hack_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "agents_a2a_server_py",
+      "target": "agents_a2a_server_build_card",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "agents_a2a_server_py",
+      "target": "agents_a2a_server_mount",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "agents_a2a_server_rationale_1",
+      "target": "agents_a2a_server_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "agents_a2a_server_rationale_42",
+      "target": "agents_a2a_server_mount",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L53-86",
+      "weight": 1.0,
+      "source": "agents_a2a_server_mount",
+      "target": "agents_a2a_server_agent_card"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L57-87",
+      "weight": 1.0,
+      "source": "agents_a2a_server_mount",
+      "target": "agents_a2a_server_jsonrpc"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "agents_a2a_server_mount",
+      "target": "readme_a2a_protocol"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "agents_agent_drifty_py",
+      "target": "agents_agent_drifty_get_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "agents_agent_drifty_py",
+      "target": "agents_agent_drifty_responder",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "agents_agent_drifty_rationale_1",
+      "target": "agents_agent_drifty_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "agents_agent_drifty_responder",
+      "target": "agents_agent_drifty_get_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "agents_a2a_server_jsonrpc",
+      "target": "agents_agent_drifty_responder"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "agents_agent_drifty_responder",
+      "target": "agents_agent_drifty__get_client"
+    },
+    {
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "agents/agent_drifty.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "agents_agent_drifty_responder",
+      "target": "agents_a2a_server_responder_type"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/agent_urls.txt",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "agents_agent_urls_endpoints",
+      "target": "agents_agent_drifty_responder"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "agents/agent_wrong.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "agents_agent_wrong_responder",
+      "target": "agents_agent_drifty_responder"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "agents_agent_accurate_py",
+      "target": "agents_agent_accurate_get_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "agents_agent_accurate_py",
+      "target": "agents_agent_accurate_responder",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "agents_agent_accurate_rationale_1",
+      "target": "agents_agent_accurate_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "agents_agent_accurate_responder",
+      "target": "agents_agent_accurate_get_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "agents_a2a_server_jsonrpc",
+      "target": "agents_agent_accurate_responder"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "agents_agent_accurate_responder",
+      "target": "agents_agent_accurate__get_client"
+    },
+    {
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "agents/agent_accurate.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "agents_agent_accurate_responder",
+      "target": "agents_a2a_server_responder_type"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/agent_urls.txt",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "agents_agent_urls_endpoints",
+      "target": "agents_agent_accurate_responder"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "agents_agent_wrong_py",
+      "target": "agents_agent_wrong_get_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "agents_agent_wrong_py",
+      "target": "agents_agent_wrong_responder",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "agents_agent_wrong_rationale_1",
+      "target": "agents_agent_wrong_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "agents_agent_wrong_responder",
+      "target": "agents_agent_wrong_get_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "agents_a2a_server_jsonrpc",
+      "target": "agents_agent_wrong_responder"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "agents_agent_wrong_responder",
+      "target": "agents_agent_wrong__get_client"
+    },
+    {
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "agents/agent_wrong.py",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "agents_agent_wrong_responder",
+      "target": "agents_a2a_server_responder_type"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/agent_urls.txt",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "agents_agent_urls_endpoints",
+      "target": "agents_agent_wrong_responder"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "backend_server_py",
+      "target": "backend_server_discoverbody",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "backend_server_py",
+      "target": "backend_server_testcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "backend_server_py",
+      "target": "backend_server_evalbody",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L65",
+      "weight": 1.0,
+      "source": "backend_server_py",
+      "target": "backend_server_discover",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "backend_server_py",
+      "target": "backend_server_start_eval",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L80",
+      "weight": 1.0,
+      "source": "backend_server_py",
+      "target": "backend_server_eval_status",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "backend_server_py",
+      "target": "backend_server_health",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_server_rationale_1",
+      "target": "backend_server_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "backend_server_discoverbody",
+      "target": "basemodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "backend_server_testcase",
+      "target": "basemodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/server.py",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "backend_server_evalbody",
+      "target": "basemodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_server_discover",
+      "target": "backend_eval_discover_agent"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_server_discover",
+      "target": "backend_mocks_discover_agent"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_discover_fn",
+      "target": "backend_server_discover"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_readme_api_contract",
+      "target": "backend_server_discover"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_server_start_eval",
+      "target": "backend_eval_start_eval"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_server_start_eval",
+      "target": "backend_mocks_start_eval"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_starteval_fn",
+      "target": "backend_server_start_eval"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_readme_api_contract",
+      "target": "backend_server_start_eval"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_server_eval_status",
+      "target": "backend_eval_get_eval_status"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_server_eval_status",
+      "target": "backend_mocks_get_eval_status"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_getstatus_fn",
+      "target": "backend_server_eval_status"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_readme_api_contract",
+      "target": "backend_server_eval_status"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_readme_api_contract",
+      "target": "backend_server_health"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_py",
+      "target": "backend_sandbox_worker_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_py",
+      "target": "backend_sandbox_worker_send_a2a",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_py",
+      "target": "backend_sandbox_worker_score",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L102",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_py",
+      "target": "backend_sandbox_worker_write",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_rationale_1",
+      "target": "backend_sandbox_worker_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_main",
+      "target": "backend_sandbox_worker_send_a2a",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_main",
+      "target": "backend_sandbox_worker_score",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_main",
+      "target": "backend_sandbox_worker_write",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval__run_eval",
+      "target": "backend_sandbox_worker_main"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/sandbox.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_run_worker_in_sandbox",
+      "target": "backend_sandbox_worker_main"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_main",
+      "target": "backend_sandbox_worker__send_a2a"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_main",
+      "target": "backend_sandbox_worker__score"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_main",
+      "target": "backend_sandbox_worker__write"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_rationale_43",
+      "target": "backend_sandbox_worker_send_a2a",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "backend_sandbox_worker_rationale_77",
+      "target": "backend_sandbox_worker_score",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "backend_a2a_client_py",
+      "target": "backend_a2a_client_discover",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "backend_a2a_client_py",
+      "target": "backend_a2a_client_rpc_url_from_card",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "backend_a2a_client_py",
+      "target": "backend_a2a_client_send_message",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_a2a_client_rationale_1",
+      "target": "backend_a2a_client_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": null,
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "backend_a2a_client_send_message",
+      "target": "backend_a2a_client_discover"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "backend_a2a_client_rationale_17",
+      "target": "backend_a2a_client_discover",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval_discover_agent",
+      "target": "backend_a2a_client_discover"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_worker__send_a2a",
+      "target": "backend_a2a_client_discover"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "backend_a2a_client_send_message",
+      "target": "backend_a2a_client_rpc_url_from_card",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "backend_a2a_client_rationale_25",
+      "target": "backend_a2a_client_rpc_url_from_card",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/a2a_client.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "backend_a2a_client_rationale_36",
+      "target": "backend_a2a_client_send_message",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/a2a_client.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_a2a_client_send_message",
+      "target": "backend_a2a_client__rpc_url_from_card"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_worker__send_a2a",
+      "target": "backend_a2a_client_send_message"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "backend_sandbox_py",
+      "target": "backend_sandbox_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "backend_sandbox_py",
+      "target": "backend_sandbox_run_worker_in_sandbox",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "backend_sandbox_py",
+      "target": "backend_sandbox_fan_out",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L119",
+      "weight": 1.0,
+      "source": "backend_sandbox_py",
+      "target": "backend_sandbox_upload_text",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_sandbox_rationale_1",
+      "target": "backend_sandbox_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "backend_sandbox_run_worker_in_sandbox",
+      "target": "backend_sandbox_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "backend_sandbox_run_worker_in_sandbox",
+      "target": "backend_sandbox_upload_text",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "backend_sandbox_rationale_32",
+      "target": "backend_sandbox_run_worker_in_sandbox",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/sandbox.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_fan_out",
+      "target": "backend_sandbox_run_worker_in_sandbox"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/sandbox.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_run_worker_in_sandbox",
+      "target": "backend_sandbox__upload_text"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/sandbox.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_run_worker_in_sandbox",
+      "target": "backend_sandbox__image"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/sandbox.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "backend_sandbox_rationale_89",
+      "target": "backend_sandbox_fan_out",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval__run_eval",
+      "target": "backend_sandbox_fan_out"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "backend_judge_py",
+      "target": "backend_judge_score_accuracy",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "backend_judge_py",
+      "target": "backend_judge_geval_accuracy_fallback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "backend_judge_py",
+      "target": "backend_judge_score_consistency",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "backend_judge_py",
+      "target": "backend_judge_compute_drift",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L120",
+      "weight": 1.0,
+      "source": "backend_judge_py",
+      "target": "backend_judge_extract_json",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_judge_rationale_1",
+      "target": "backend_judge_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "backend_judge_score_accuracy",
+      "target": "backend_judge_geval_accuracy_fallback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "backend_judge_rationale_39",
+      "target": "backend_judge_score_accuracy",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/judge.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_judge_score_accuracy",
+      "target": "backend_judge__geval_accuracy_fallback"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/sandbox_worker.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_sandbox_worker__score",
+      "target": "backend_judge_score_accuracy"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "backend_judge_geval_accuracy_fallback",
+      "target": "backend_judge_extract_json",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "backend_judge_rationale_57",
+      "target": "backend_judge_geval_accuracy_fallback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "backend_judge_score_consistency",
+      "target": "backend_judge_extract_json",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": null,
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "backend_judge_score_consistency",
+      "target": "backend_judge_compute_drift"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "backend_judge_rationale_77",
+      "target": "backend_judge_score_consistency",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval__finalize_scorecard",
+      "target": "backend_judge_score_consistency"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/judge.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_judge_score_consistency",
+      "target": "backend_judge__extract_json"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/judge.py",
+      "source_location": "L121",
+      "weight": 1.0,
+      "source": "backend_judge_rationale_121",
+      "target": "backend_judge_extract_json",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_agentcard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_tile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_scorecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_evalstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_discover_agent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_start_eval",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_get_eval_status",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_run_eval",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L149",
+      "weight": 1.0,
+      "source": "backend_eval_py",
+      "target": "backend_eval_finalize_scorecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_eval_rationale_1",
+      "target": "backend_eval_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "backend_eval_agentcard",
+      "target": "typeddict",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "backend_eval_rationale_20",
+      "target": "backend_eval_agentcard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/mocks.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_mocks_discover_agent",
+      "target": "backend_eval_agentcard"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_agentcard_type",
+      "target": "backend_eval_agentcard"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "backend_eval_tile",
+      "target": "typeddict",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "backend_eval_scorecard",
+      "target": "typeddict",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "backend_eval_evalstatus",
+      "target": "typeddict",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_tile_type",
+      "target": "backend_eval_tile"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_scorecard_type",
+      "target": "backend_eval_scorecard"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/mocks.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_mocks_get_eval_status",
+      "target": "backend_eval_evalstatus"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_evalstatus_type",
+      "target": "backend_eval_evalstatus"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_server_use_mocks",
+      "target": "backend_eval_discover_agent"
+    },
+    {
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/mocks.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_mocks_discover_agent",
+      "target": "backend_eval_discover_agent"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval_start_eval",
+      "target": "backend_eval__run_eval"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval_start_eval",
+      "target": "backend_eval__state"
+    },
+    {
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/mocks.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_mocks_start_eval",
+      "target": "backend_eval_start_eval"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval_get_eval_status",
+      "target": "backend_eval__state"
+    },
+    {
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/mocks.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_mocks_get_eval_status",
+      "target": "backend_eval_get_eval_status"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L143",
+      "weight": 1.0,
+      "source": "backend_eval_run_eval",
+      "target": "backend_eval_finalize_scorecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "backend_eval_rationale_97",
+      "target": "backend_eval_run_eval",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/eval.py",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "backend_eval_rationale_150",
+      "target": "backend_eval_finalize_scorecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/mocks.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "backend_mocks_py",
+      "target": "backend_mocks_discover_agent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/mocks.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "backend_mocks_py",
+      "target": "backend_mocks_start_eval",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/mocks.py",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "backend_mocks_py",
+      "target": "backend_mocks_get_eval_status",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/mocks.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_mocks_rationale_1",
+      "target": "backend_mocks_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/mocks.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "backend_mocks_rationale_13",
+      "target": "backend_mocks_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_server_use_mocks",
+      "target": "backend_mocks_discover_agent"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/mocks.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "backend_mocks_rationale_38",
+      "target": "backend_mocks_get_eval_status",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L45-47",
+      "weight": 1.0,
+      "source": "hack_main",
+      "target": "readme_agenteval_platform"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/a2a_server.py",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "agents_a2a_server_agent_card",
+      "target": "agents_a2a_server__build_card"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "requirements.txt",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "requirements_deps",
+      "target": "readme_agenteval_platform"
+    },
+    {
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L87-89",
+      "weight": 1.0,
+      "source": "readme_agenteval_platform",
+      "target": "readme_a2a_protocol"
+    },
+    {
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L82-85",
+      "weight": 1.0,
+      "source": "readme_agenteval_platform",
+      "target": "readme_deepeval"
+    },
+    {
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L82-93",
+      "weight": 1.0,
+      "source": "readme_agenteval_platform",
+      "target": "readme_daytona"
+    },
+    {
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L84-85",
+      "weight": 1.0,
+      "source": "readme_agenteval_platform",
+      "target": "readme_consistency_drift"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L29-37",
+      "weight": 1.0,
+      "source": "readme_two_process_architecture",
+      "target": "readme_agenteval_platform"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "readme_consistency_drift",
+      "target": "readme_deepeval"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "readme_consistency_drift",
+      "target": "readme_daytona"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_readme_dev_loop",
+      "target": "backend_server_use_mocks"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/judge.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_judge__geval_accuracy_fallback",
+      "target": "backend_judge__extract_json"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval__run_eval",
+      "target": "backend_eval__finalize_scorecard"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval__run_eval",
+      "target": "backend_eval__state"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "backend_eval__finalize_scorecard",
+      "target": "backend_eval__state"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_page_component",
+      "target": "frontend_starter_discover_fn"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_page_component",
+      "target": "frontend_starter_starteval_fn"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_page_component",
+      "target": "frontend_starter_getstatus_fn"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/STARTER.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_starter_page_component",
+      "target": "frontend_starter_demo_set"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_readme_dev_loop",
+      "target": "frontend_starter_page_component"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "a2a_pluggable_responder_pattern",
+      "label": "A2A pluggable responder wiring",
+      "nodes": [
+        "agents_a2a_server_mount",
+        "agents_a2a_server_responder_type",
+        "agents_agent_accurate_responder",
+        "agents_agent_drifty_responder",
+        "agents_agent_wrong_responder"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/a2a_server.py"
+    },
+    {
+      "id": "demo_agent_trio_failure_modes",
+      "label": "Demo trio: correct / drifty / wrong failure modes",
+      "nodes": [
+        "agents_agent_accurate_responder",
+        "agents_agent_drifty_responder",
+        "agents_agent_wrong_responder"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md"
+    },
+    {
+      "id": "eval_orchestration_pipeline",
+      "label": "Eval orchestration pipeline (HTTP to sandbox worker)",
+      "nodes": [
+        "backend_server_start_eval",
+        "backend_eval_start_eval",
+        "backend_eval__run_eval",
+        "backend_sandbox_fan_out",
+        "backend_sandbox_run_worker_in_sandbox",
+        "backend_sandbox_worker_main"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/eval.py"
+    },
+    {
+      "id": "tile_shape_contract",
+      "label": "Tile / EvalStatus shape mirrored across backend, mocks, and TS",
+      "nodes": [
+        "backend_eval_tile",
+        "backend_eval_evalstatus",
+        "backend_mocks_get_eval_status",
+        "frontend_starter_tile_type",
+        "frontend_starter_evalstatus_type"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/eval.py"
+    },
+    {
+      "id": "a2a_wire_protocol",
+      "label": "A2A JSON-RPC v1.0 wire protocol (agent card + message/send)",
+      "nodes": [
+        "backend_a2a_client_discover",
+        "backend_a2a_client__rpc_url_from_card",
+        "backend_a2a_client_send_message",
+        "backend_sandbox_worker__send_a2a"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/a2a_client.py"
+    }
+  ],
+  "built_at_commit": "1e7a8948d3348bc7ea9fcd2570f6f1a50157e00f"
+}

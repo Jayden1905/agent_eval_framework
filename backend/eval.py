@@ -32,13 +32,15 @@ class Tile(TypedDict):
     run_idx: int
     status: str       # "pending" | "running" | "pass" | "fail" | "error"
     answer: str
-    score: float
+    score: float      # DeepEval GEval accuracy (0..1) — drives pass/fail at 0.7
+    relevancy: float  # DeepEval AnswerRelevancy (0..1) — informational
 
 
 class Scorecard(TypedDict):
     accuracy: str
     accuracy_pct: float
     consistency_drift: float
+    relevancy_pct: float
     per_question: list[dict]
 
 
@@ -70,6 +72,7 @@ def start_eval(agent_url: str, test_set: list[dict], runs_per_q: int = 3) -> str
                 "status": "pending",
                 "answer": "",
                 "score": 0.0,
+                "relevancy": 0.0,
             })
 
     with _LOCK:
@@ -115,6 +118,7 @@ def _run_eval(eval_id: str, agent_url: str, test_set: list[dict], runs_per_q: in
                 if tile["q_idx"] == result["q_idx"] and tile["run_idx"] == result["run_idx"]:
                     tile["answer"] = result.get("answer", "")
                     tile["score"] = float(result.get("score", 0.0))
+                    tile["relevancy"] = float(result.get("relevancy", 0.0))
                     if result.get("error"):
                         tile["status"] = "error"
                     else:
@@ -155,24 +159,27 @@ def _finalize_scorecard(eval_id: str, test_set: list[dict]) -> None:
     for q_idx, item in enumerate(test_set):
         q_tiles = [t for t in tiles if t["q_idx"] == q_idx and t["status"] != "error"]
         if not q_tiles:
-            per_q.append({"q_idx": q_idx, "acc": 0.0, "drift": 0.0, "reason": "all runs errored"})
+            per_q.append({"q_idx": q_idx, "acc": 0.0, "rel": 0.0, "drift": 0.0, "reason": "all runs errored"})
             continue
         acc = sum(t["score"] for t in q_tiles) / len(q_tiles)
+        rel = sum(t["relevancy"] for t in q_tiles) / len(q_tiles)
         responses = [t["answer"] for t in q_tiles if t["answer"]]
         if len(responses) >= 2:
             c = judge.score_consistency(item["question"], responses)
-            per_q.append({"q_idx": q_idx, "acc": acc, "drift": c["drift"], "reason": c["reason"]})
+            per_q.append({"q_idx": q_idx, "acc": acc, "rel": rel, "drift": c["drift"], "reason": c["reason"]})
         else:
-            per_q.append({"q_idx": q_idx, "acc": acc, "drift": 0.0, "reason": "not enough runs"})
+            per_q.append({"q_idx": q_idx, "acc": acc, "rel": rel, "drift": 0.0, "reason": "not enough runs"})
 
     n = len(test_set)
     passed = sum(1 for q in per_q if q["acc"] >= 0.7)
     avg_drift = sum(q["drift"] for q in per_q) / max(1, n)
+    avg_rel = sum(q["rel"] for q in per_q) / max(1, n)
 
     with _LOCK:
         _STATE[eval_id]["scorecard"] = {
             "accuracy": f"{passed}/{n}",
             "accuracy_pct": passed / max(1, n),
             "consistency_drift": avg_drift,
+            "relevancy_pct": avg_rel,
             "per_question": per_q,
         }

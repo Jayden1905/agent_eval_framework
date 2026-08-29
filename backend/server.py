@@ -23,10 +23,22 @@ from __future__ import annotations
 
 import os
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+
+load_dotenv()
+
+# Nosana endpoint is OpenAI-wire-compatible. Mirror NOSANA_BASE_URL onto
+# OPENAI_BASE_URL so the openai SDK (agents + score_consistency) and
+# DeepEval's default judge (sandbox_worker.py) pick it up zero-config.
+# The Nosana endpoint has no auth, but the openai SDK rejects an empty
+# api_key — default to a placeholder string when NOSANA_API_KEY is unset.
+if os.environ.get("NOSANA_BASE_URL"):
+    os.environ.setdefault("OPENAI_BASE_URL", os.environ["NOSANA_BASE_URL"])
+os.environ.setdefault("OPENAI_API_KEY", os.environ.get("NOSANA_API_KEY") or "nosana-no-auth")
 
 USE_MOCKS = bool(os.environ.get("USE_MOCKS"))
 
@@ -40,7 +52,7 @@ app = FastAPI(title="AgentEval")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -59,6 +71,11 @@ class EvalBody(BaseModel):
     agent_url: str
     test_set: list[TestCase]
     runs_per_q: int = 3
+
+
+@app.get("/")
+def root():
+    return {"ok": True, "mode": "mocks" if USE_MOCKS else "real"}
 
 
 @app.post("/api/discover")

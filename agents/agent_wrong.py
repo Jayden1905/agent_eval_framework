@@ -7,10 +7,11 @@ Dev 3 owns this file.
 """
 from __future__ import annotations
 
+import os
+
 
 NAME = "Singapore Trivia Agent (wrong)"
 DESCRIPTION = "Answers about Singapore, but often confidently incorrect."
-MODEL = "claude-haiku-4-5-20251001"
 SYSTEM = (
     "You are answering trivia about Singapore. "
     "You always answer confidently and definitively, in one or two sentences. "
@@ -25,17 +26,20 @@ _client = None
 def _get_client():
     global _client
     if _client is None:
-        from anthropic import Anthropic
-        _client = Anthropic()
+        from openai import OpenAI
+        _client = OpenAI()
     return _client
 
 
 def responder(question: str) -> str:
-    r = _get_client().messages.create(
-        model=MODEL,
+    model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
+    r = _get_client().chat.completions.create(
+        model=model,
         max_tokens=200,
         temperature=0.0,
-        system=SYSTEM,
-        messages=[{"role": "user", "content": question}],
+        messages=[
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": question},
+        ],
     )
-    return r.content[0].text.strip()
+    return (r.choices[0].message.content or "").strip()

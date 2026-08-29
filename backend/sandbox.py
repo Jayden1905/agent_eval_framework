@@ -14,7 +14,7 @@ from daytona import Daytona, CreateSandboxFromImageParams, Image, Resources
 
 _IMAGE = (
     Image.base("python:3.11-slim")
-    .pipInstall(["anthropic>=0.40.0", "deepeval>=1.0.0", "httpx>=0.27.0"])
+    .pip_install(["openai>=1.40.0", "deepeval>=1.0.0", "httpx>=0.27.0"])
 )
 
 
@@ -31,7 +31,7 @@ def run_worker_in_sandbox(
 ) -> dict:
     """Spawn one sandbox, upload worker.py, run it, return the JSON result.
 
-    Returns: {"answer": str, "score": float, "reason": str, "error": str | None}
+    Returns: {"answer": str, "score": float, "relevancy": float, "reason": str, "error": str | None}
     """
     daytona = _client()
     sandbox = None
@@ -39,7 +39,13 @@ def run_worker_in_sandbox(
         params = CreateSandboxFromImageParams(
             image=_IMAGE,
             language="python",
-            env_vars={"ANTHROPIC_API_KEY": os.environ.get("ANTHROPIC_API_KEY", "")},
+            env_vars={
+                # DeepEval + openai SDK both read OPENAI_* from env.
+                # backend/server.py mirrors NOSANA_* onto these at startup.
+                "OPENAI_BASE_URL": os.environ.get("OPENAI_BASE_URL", ""),
+                "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
+                "NOSANA_MODEL": os.environ.get("NOSANA_MODEL", ""),
+            },
             resources=Resources(cpu=1, memory=2),
             auto_stop_interval=0,
             auto_delete_interval=5,  # nuke after 5 min if we forget
@@ -69,6 +75,7 @@ def run_worker_in_sandbox(
             return {
                 "answer": "",
                 "score": 0.0,
+                "relevancy": 0.0,
                 "reason": "worker did not write result.json",
                 "error": f"{e}\nstdout: {getattr(result, 'result', '')}",
             }

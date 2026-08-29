@@ -54,6 +54,7 @@ def get_eval_status(eval_id: str) -> dict:
                     "status": "running" if idx == n_done else "pending",
                     "answer": "",
                     "score": 0.0,
+                    "relevancy": 0.0,
                 })
             else:
                 # deterministic fake: q_idx 2 (islands) shows drift on run_idx 0
@@ -66,12 +67,14 @@ def get_eval_status(eval_id: str) -> dict:
                 else:
                     ans = f"[mock answer to Q{q_idx+1}, run {run_idx+1}]"
                 score = random.uniform(0.85, 1.0)
+                relevancy = random.uniform(0.8, 1.0)
                 tiles.append({
                     "q_idx": q_idx,
                     "run_idx": run_idx,
                     "status": "pass" if score > 0.7 else "fail",
                     "answer": ans,
                     "score": score,
+                    "relevancy": relevancy,
                 })
 
     scorecard: dict | None = None
@@ -80,12 +83,13 @@ def get_eval_status(eval_id: str) -> dict:
             "accuracy": "5/5",
             "accuracy_pct": 0.95,
             "consistency_drift": 0.33,
+            "relevancy_pct": 0.92,
             "per_question": [
-                {"q_idx": 0, "acc": 1.0, "drift": 0.0, "reason": "consistent"},
-                {"q_idx": 1, "acc": 1.0, "drift": 0.0, "reason": "consistent"},
-                {"q_idx": 2, "acc": 0.9, "drift": 0.67, "reason": "3 different answers on island count"},
-                {"q_idx": 3, "acc": 1.0, "drift": 0.0, "reason": "consistent"},
-                {"q_idx": 4, "acc": 1.0, "drift": 0.0, "reason": "consistent"},
+                {"q_idx": 0, "acc": 1.0, "rel": 0.95, "drift": 0.0, "reason": "consistent"},
+                {"q_idx": 1, "acc": 1.0, "rel": 0.93, "drift": 0.0, "reason": "consistent"},
+                {"q_idx": 2, "acc": 0.9, "rel": 0.88, "drift": 0.67, "reason": "3 different answers on island count"},
+                {"q_idx": 3, "acc": 1.0, "rel": 0.94, "drift": 0.0, "reason": "consistent"},
+                {"q_idx": 4, "acc": 1.0, "rel": 0.90, "drift": 0.0, "reason": "consistent"},
             ],
         }
 
