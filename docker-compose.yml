@@ -1,0 +1,31 @@
+# Run with `make docker-up` (or `docker compose up --build`).
+# Real mode by default (needs DAYTONA_API_KEY / NOSANA_* in .env — see
+# .env.template). For the dep-free mocks mode, use `make docker-mocks`.
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: agent-eval-backend:latest
+    ports:
+      - "8000:8000"
+    env_file:
+      # Same file `make dev` reads (backend/server.py's load_dotenv()).
+      # required: false mirrors that: real mode needs it (see
+      # .env.template), but docker-mocks doesn't, and shouldn't hard-fail
+      # if it's missing — same as running `make dev-mocks` with no .env.
+      - path: .env
+        required: false
+    environment:
+      # USE_MOCKS is unset by default (real mode); `make docker-mocks`
+      # overrides it. Not read from .env on purpose — it's a run-mode
+      # switch, not a secret.
+      USE_MOCKS: ${USE_MOCKS:-}
+    restart: unless-stopped
+    healthcheck:
+      # No curl in python:3.13-slim — hit /api/health with stdlib instead.
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
