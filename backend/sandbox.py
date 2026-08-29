@@ -117,6 +117,15 @@ def run_worker_in_sandbox(
             "reason": f"scoring failed: {detail}",
             "error": detail,
         }
+
+    # An empty answer can never be a correct one — don't trust the judge's
+    # score on it (reasoning-model judges occasionally rate empty output
+    # favorably; see backend/judge.py docstring).
+    if not answer.strip():
+        acc = 0.0
+        rel = 0.0
+        reason = f"empty answer from agent — judge score discarded ({reason})" if reason else "empty answer from agent"
+
     return {
         "answer": answer,
         "score": acc,

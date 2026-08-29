@@ -110,12 +110,12 @@ def _post(path: str, body: dict) -> dict:
         headers={"content-type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=30) as r:
+    with urllib.request.urlopen(req, timeout=300) as r:
         return json.loads(r.read())
 
 
 def _get(path: str) -> dict:
-    with urllib.request.urlopen(BASE + path, timeout=30) as r:
+    with urllib.request.urlopen(BASE + path, timeout=300) as r:
         return json.loads(r.read())
 
 
