@@ -1,9 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { KeyboardEvent } from "react";
-import { AGENTS, DEMO_SET, getMockSnapshot } from "@/lib/mock-evaluation";
-import type { AgentPresetId, EvalTile, TileStatus } from "@/lib/evaluation-types";
+import { AGENTS, DEMO_SET } from "@/lib/mock-evaluation";
+import {
+  discoverAgent,
+  getEvaluationStatus,
+  startEvaluation as startEvalRequest,
+  type DiscoveredAgent,
+} from "@/lib/api";
+import type { AgentPresetId, EvalTile, EvaluationSnapshot, TileStatus } from "@/lib/evaluation-types";
 
 const STATUS_META: Record<TileStatus, { label: string; symbol: string }> = {
   pending: { label: "Queued", symbol: "·" },
@@ -12,6 +18,27 @@ const STATUS_META: Record<TileStatus, { label: string; symbol: string }> = {
   fail: { label: "Failed", symbol: "!" },
   error: { label: "Error", symbol: "×" },
 };
+
+const POLL_MS = 500;
+
+function emptySnapshot(evalId = ""): EvaluationSnapshot {
+  const tiles: EvalTile[] = [];
+  DEMO_SET.forEach((_, qIdx) => {
+    for (let runIdx = 0; runIdx < 3; runIdx += 1) {
+      tiles.push({
+        q_idx: qIdx,
+        run_idx: runIdx,
+        status: "pending",
+        answer: "",
+        score: 0,
+        relevancy: 0,
+        reason: "",
+        run_id: `pending-q${qIdx + 1}r${runIdx + 1}`,
+      });
+    }
+  });
+  return { eval_id: evalId, tiles, scorecard: null, completed: 0, total: tiles.length };
+}
 
 function formatScore(score: number, status: TileStatus) {
   return ["pending", "running", "error"].includes(status) ? "—" : score.toFixed(2);
@@ -137,59 +164,95 @@ function QuestionOffice({
 export default function Home() {
   const [agentId, setAgentId] = useState<AgentPresetId>("drifty");
   const [agentUrl, setAgentUrl] = useState("http://localhost:8000/agents/drifty");
-  const [connected, setConnected] = useState(true);
-  const [started, setStarted] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [completed, setCompleted] = useState(0);
+  const [connected, setConnected] = useState(false);
+  const [discovering, setDiscovering] = useState(false);
+  const [discovered, setDiscovered] = useState<DiscoveredAgent | null>(null);
+  const [evalId, setEvalId] = useState<string | null>(null);
+  const [snapshot, setSnapshot] = useState<EvaluationSnapshot>(() => emptySnapshot());
+  const [error, setError] = useState<string | null>(null);
   const [selectedKey, setSelectedKey] = useState("0-0");
   const [view, setView] = useState<"office" | "results">("office");
 
   const agent = AGENTS[agentId];
-  const snapshot = useMemo(() => getMockSnapshot(agentId, completed, "mock-ae7f3c", started), [agentId, completed, started]);
+  const started = evalId !== null;
   const selectedTile = snapshot.tiles.find((tile) => `${tile.q_idx}-${tile.run_idx}` === selectedKey) ?? snapshot.tiles[0];
-  const progress = Math.round((snapshot.completed / snapshot.total) * 100);
-  const phase = !started ? "ready" : completed >= snapshot.total ? "complete" : "running";
+  const progress = snapshot.total > 0 ? Math.round((snapshot.completed / snapshot.total) * 100) : 0;
+  const phase = !started ? "ready" : snapshot.scorecard ? "complete" : "running";
 
   useEffect(() => {
-    if (!playing || completed >= snapshot.total) return;
-    const interval = window.setInterval(() => {
-      setCompleted((current) => current >= snapshot.total ? current : current + 1);
-    }, 980);
-    return () => window.clearInterval(interval);
-  }, [completed, playing, snapshot.total]);
+    if (!evalId) return;
+    const controller = new AbortController();
+    let stopped = false;
+    let timer: number | undefined;
+
+    const poll = async () => {
+      if (stopped) return;
+      try {
+        const next = await getEvaluationStatus(evalId, controller.signal);
+        if (stopped) return;
+        setSnapshot(next);
+        if (next.scorecard) return;
+        timer = window.setTimeout(poll, POLL_MS);
+      } catch (e) {
+        if (stopped || controller.signal.aborted) return;
+        setError(e instanceof Error ? e.message : String(e));
+      }
+    };
+    poll();
+    return () => {
+      stopped = true;
+      controller.abort();
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [evalId]);
 
   function selectAgent(nextId: AgentPresetId) {
     setAgentId(nextId);
     setAgentUrl(`http://localhost:8000/agents/${nextId}`);
-    setConnected(true);
-    setCompleted(0);
-    setStarted(false);
-    setPlaying(false);
+    setConnected(false);
+    setDiscovered(null);
+    setEvalId(null);
+    setSnapshot(emptySnapshot());
+    setError(null);
     setView("office");
     setSelectedKey("0-0");
   }
 
-  function startEvaluation() {
-    setCompleted(0);
-    setStarted(true);
-    setPlaying(true);
-    setSelectedKey("0-0");
-    setView("office");
+  async function handleConnect() {
+    setError(null);
+    setDiscovering(true);
+    try {
+      const card = await discoverAgent(agentUrl);
+      setDiscovered(card);
+      setConnected(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setConnected(false);
+    } finally {
+      setDiscovering(false);
+    }
   }
 
-  function resetEvaluation() {
-    setCompleted(0);
-    setStarted(false);
-    setPlaying(false);
-    setView("office");
+  async function handleStart() {
+    setError(null);
+    setSnapshot(emptySnapshot());
     setSelectedKey("0-0");
+    setView("office");
+    setEvalId(null);
+    try {
+      const id = await startEvalRequest(agentUrl, DEMO_SET, 3);
+      setEvalId(id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
   }
 
-  function finishEvaluation() {
-    setCompleted(snapshot.total);
-    setStarted(true);
-    setPlaying(false);
-    setView("results");
+  function handleReset() {
+    setEvalId(null);
+    setSnapshot(emptySnapshot());
+    setError(null);
+    setView("office");
+    setSelectedKey("0-0");
   }
 
   function scrollInspectorWhenStacked() {
@@ -241,6 +304,8 @@ export default function Home() {
     window.requestAnimationFrame(() => document.getElementById(`${nextView}-tab`)?.focus());
   }
 
+  const statusBadge = error ? "ERROR" : phase === "complete" ? "DONE" : phase === "running" ? "LIVE" : connected ? "READY" : "OFFLINE";
+
   return (
     <main className="app-shell">
       <header className="app-header">
@@ -254,8 +319,8 @@ export default function Home() {
           <strong>{progress}%</strong>
         </div>
         <div className="header-actions">
-          <span className="mock-badge"><i /> MOCK DATA</span>
-          <button className="icon-button" type="button" aria-label="Reset evaluation" onClick={resetEvaluation}>↻</button>
+          <span className="mock-badge"><i /> {statusBadge}</span>
+          <button className="icon-button" type="button" aria-label="Reset evaluation" onClick={handleReset}>↻</button>
         </div>
       </header>
 
@@ -271,9 +336,12 @@ export default function Home() {
             <div className="section-heading"><span>01</span><div><b>Connect agent</b><small>A2A endpoint</small></div></div>
             <label className="url-field">
               <span>Agent URL</span>
-              <input value={agentUrl} onChange={(event) => { setAgentUrl(event.target.value); setConnected(false); }} aria-label="Agent URL" />
+              <input value={agentUrl} onChange={(event) => { setAgentUrl(event.target.value); setConnected(false); setDiscovered(null); }} aria-label="Agent URL" />
             </label>
-            <button className="connect-button" type="button" onClick={() => setConnected(true)}>{connected ? "Connected" : "Discover agent"}<span>{connected ? "✓" : "→"}</span></button>
+            <button className="connect-button" type="button" onClick={handleConnect} disabled={discovering}>
+              {discovering ? "Discovering…" : connected ? "Connected" : "Discover agent"}
+              <span>{connected ? "✓" : "→"}</span>
+            </button>
             <div className="preset-picker" aria-label="Dummy agent profiles">
               {(Object.keys(AGENTS) as AgentPresetId[]).map((id) => (
                 <button key={id} type="button" aria-pressed={agentId === id} onClick={() => selectAgent(id)}>{id}</button>
@@ -282,7 +350,11 @@ export default function Home() {
             {connected && (
               <article className="agent-card">
                 <AgentSprite tone={agent.avatarTone} />
-                <div><b>{agent.shortName}</b><span>{agent.name}</span><small><i /> {agent.skill}</small></div>
+                <div>
+                  <b>{agent.shortName}</b>
+                  <span>{discovered?.name ?? agent.name}</span>
+                  <small><i /> {discovered?.skills?.[0]?.name ?? agent.skill}</small>
+                </div>
               </article>
             )}
           </section>
@@ -296,12 +368,13 @@ export default function Home() {
           </section>
 
           <div className="rail-actions">
+            {error && <p className="error-banner" role="alert">{error}</p>}
             {phase === "running" ? (
-              <button className="primary-action" type="button" onClick={finishEvaluation}>Fast-forward results <span>»</span></button>
+              <button className="primary-action" type="button" onClick={() => setView("results")}>View results grid <span>»</span></button>
             ) : (
-              <button className="primary-action" type="button" disabled={!connected} onClick={startEvaluation}>{phase === "complete" ? "Run again" : "Start evaluation"}<span>→</span></button>
+              <button className="primary-action" type="button" disabled={!connected} onClick={handleStart}>{phase === "complete" ? "Run again" : "Start evaluation"}<span>→</span></button>
             )}
-            <p><span /> No API calls — deterministic demo playback</p>
+            <p><span /> Polling backend every {POLL_MS} ms while running</p>
           </div>
         </aside>
 
@@ -335,7 +408,7 @@ export default function Home() {
                         <header className="room-header">
                           <div className="question-number">Q{String(qIdx + 1).padStart(2, "0")}</div>
                           <div><h2 id={`question-${qIdx}`}>{test.question}</h2><span>{roomComplete}/3 runs complete</span></div>
-                          <div className={`room-drift ${snapshot.scorecard?.per_question[qIdx].drift ? "has-drift" : ""}`}><small>DRIFT</small><b>{snapshot.scorecard ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "—"}</b></div>
+                          <div className={`room-drift ${snapshot.scorecard?.per_question[qIdx]?.drift ? "has-drift" : ""}`}><small>DRIFT</small><b>{snapshot.scorecard?.per_question[qIdx] ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "—"}</b></div>
                         </header>
                         <QuestionOffice tiles={roomTiles} selectedKey={selectedKey} tone={agent.avatarTone} onSelect={inspectTile} />
                       </section>
@@ -346,7 +419,7 @@ export default function Home() {
             ) : (
               <div className="results-view">
                 <div className="score-hero">
-                  <div><span className="micro-label">EVALUATION SCORECARD</span><h2>{snapshot.scorecard ? `${snapshot.scorecard.accuracy} questions passed` : "Results are still arriving"}</h2><p>{snapshot.scorecard ? "Every completed sandbox is preserved below for inspection." : "Run or fast-forward the evaluation to generate the final roll-up."}</p></div>
+                  <div><span className="micro-label">EVALUATION SCORECARD</span><h2>{snapshot.scorecard ? `${snapshot.scorecard.accuracy} questions passed` : "Results are still arriving"}</h2><p>{snapshot.scorecard ? "Every completed sandbox is preserved below for inspection." : "The scorecard will populate once every sandbox reports back."}</p></div>
                   <div className="score-dials">
                     <div><span>ACCURACY</span><strong>{snapshot.scorecard ? `${Math.round(snapshot.scorecard.accuracy_pct * 100)}%` : `${progress}%`}</strong><i /></div>
                     <div><span>DRIFT</span><strong>{snapshot.scorecard ? snapshot.scorecard.consistency_drift.toFixed(2) : "—"}</strong><i className="drift-dial" /></div>
@@ -366,10 +439,10 @@ export default function Home() {
                       ))}
                       <span
                         role="cell"
-                        aria-label={`Question ${qIdx + 1} consistency drift ${snapshot.scorecard ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "not available"}`}
-                        className={snapshot.scorecard?.per_question[qIdx].drift ? "drift-value" : ""}
+                        aria-label={`Question ${qIdx + 1} consistency drift ${snapshot.scorecard?.per_question[qIdx] ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "not available"}`}
+                        className={snapshot.scorecard?.per_question[qIdx]?.drift ? "drift-value" : ""}
                       >
-                        {snapshot.scorecard ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "—"}
+                        {snapshot.scorecard?.per_question[qIdx] ? snapshot.scorecard.per_question[qIdx].drift.toFixed(2) : "—"}
                       </span>
                     </div>
                   ))}

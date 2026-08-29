@@ -22,6 +22,7 @@ Mounted agents (real mode only):
 from __future__ import annotations
 
 import os
+import urllib.parse
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -86,10 +87,27 @@ def discover(body: DiscoverBody):
         raise HTTPException(400, f"discovery failed: {e}")
 
 
+def _rewrite_localhost(url: str) -> str:
+    """Swap localhost/127.0.0.1 for the cloudflared tunnel host.
+
+    Sandboxes can't reach the mac's localhost — `make dev` sets TUNNEL_URL to
+    a trycloudflare.com URL that IS reachable. Non-localhost URLs pass through.
+    """
+    tunnel = os.environ.get("TUNNEL_URL")
+    if not tunnel:
+        return url
+    p = urllib.parse.urlparse(url)
+    if p.hostname not in ("localhost", "127.0.0.1"):
+        return url
+    t = urllib.parse.urlparse(tunnel)
+    return p._replace(scheme=t.scheme, netloc=t.netloc).geturl()
+
+
 @app.post("/api/eval")
 def start_eval(body: EvalBody):
+    agent_url = _rewrite_localhost(body.agent_url)
     test_set = [t.model_dump() for t in body.test_set]
-    eval_id = api.start_eval(body.agent_url, test_set, runs_per_q=body.runs_per_q)
+    eval_id = api.start_eval(agent_url, test_set, runs_per_q=body.runs_per_q)
     return {"eval_id": eval_id}
 
 
