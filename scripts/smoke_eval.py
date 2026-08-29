@@ -97,6 +97,8 @@ AGENT_URL = f"{PUBLIC_BASE}/agents/{AGENT}"
 TEST_SET = [
     {"question": "What year did Singapore gain independence?", "expected": "1965"},
     {"question": "What is the capital of Singapore?", "expected": "Singapore (city-state)"},
+    {"question": "Who was Singapore's first Prime Minister?", "expected": "Lee Kuan Yew"},
+    {"question": "What is the national language of Singapore?", "expected": "Malay"},
 ]
 RUNS_PER_Q = 2
 

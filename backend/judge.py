@@ -27,12 +27,21 @@ from openai import OpenAI
 def score_tile(question: str, expected: str, actual: str) -> tuple[float, float, str]:
     """DeepEval — accuracy (GEval custom rubric) + answer relevancy.
 
+    Retries each metric independently (reasoning-model judges occasionally
+    return malformed JSON and DeepEval bubbles that up as a bare exception).
+    If a metric fails all retries, we fall back to score=0 for that metric
+    only, so a flaky relevancy call doesn't nuke a valid accuracy score.
+
     Returns (accuracy_score, relevancy_score, combined_reason).
     """
     from deepeval.metrics import AnswerRelevancyMetric, GEval
     from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+    from backend.nosana_judge import NosanaJudge
 
-    model = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
+    model_name = os.environ.get("NOSANA_MODEL", "llama-3.1-70b-instruct")
+    # Wrap in NosanaJudge so DeepEval forces response_format=json_object at
+    # the API level — the reasoning model won't produce malformed JSON.
+    model = NosanaJudge(model=model_name)
 
     accuracy_criteria = (
         "Determine whether the 'actual output' answers the question in a way that is "
@@ -41,28 +50,50 @@ def score_tile(question: str, expected: str, actual: str) -> tuple[float, float,
         "For questions with ranges or multiple acceptable answers, the expected output states "
         "the acceptable range — score high if the actual output falls within it."
     )
-    accuracy = GEval(
-        name="accuracy",
-        criteria=accuracy_criteria,
-        evaluation_params=[
-            LLMTestCaseParams.INPUT,
-            LLMTestCaseParams.EXPECTED_OUTPUT,
-            LLMTestCaseParams.ACTUAL_OUTPUT,
-        ],
-        model=model,
-    )
-    relevancy = AnswerRelevancyMetric(model=model, threshold=0.7)
+
+    def _build_accuracy():
+        return GEval(
+            name="accuracy",
+            criteria=accuracy_criteria,
+            evaluation_params=[
+                LLMTestCaseParams.INPUT,
+                LLMTestCaseParams.EXPECTED_OUTPUT,
+                LLMTestCaseParams.ACTUAL_OUTPUT,
+            ],
+            model=model,
+            async_mode=False,
+        )
+
+    def _build_relevancy():
+        return AnswerRelevancyMetric(model=model, threshold=0.7, async_mode=False)
 
     tc = LLMTestCase(input=question, expected_output=expected, actual_output=actual)
-    accuracy.measure(tc)
-    relevancy.measure(tc)
+
+    acc_score, acc_reason = _measure_with_retry("accuracy", _build_accuracy, tc)
+    rel_score, rel_reason = _measure_with_retry("relevancy", _build_relevancy, tc)
 
     reason_bits = []
-    if accuracy.reason:
-        reason_bits.append(f"acc: {accuracy.reason}")
-    if relevancy.reason:
-        reason_bits.append(f"rel: {relevancy.reason}")
-    return float(accuracy.score), float(relevancy.score), " | ".join(reason_bits)
+    if acc_reason:
+        reason_bits.append(f"acc: {acc_reason}")
+    if rel_reason:
+        reason_bits.append(f"rel: {rel_reason}")
+    return acc_score, rel_score, " | ".join(reason_bits)
+
+
+def _measure_with_retry(label: str, build, tc, attempts: int = 3) -> tuple[float, str]:
+    """Run a DeepEval metric with retries. Fresh metric per attempt (some
+    internal state gets sticky on failure). Returns (score, reason)."""
+    last_err = ""
+    for i in range(1, attempts + 1):
+        try:
+            metric = build()
+            metric.measure(tc)
+            score = float(metric.score) if metric.score is not None else 0.0
+            reason = metric.reason or ""
+            return score, reason
+        except Exception as e:
+            last_err = f"{type(e).__name__}: {e}" if str(e) else type(e).__name__
+    return 0.0, f"{label} judge failed after {attempts} attempts ({last_err})"
 
 
 def score_consistency(question: str, responses: list[str]) -> dict:
@@ -94,9 +125,12 @@ Return JSON only, no prose:
     # No max_tokens — reasoning models (e.g. glm-4.7-flash) burn budget on
     # the internal "reasoning" field before writing content, so a cap here
     # returns empty content with finish_reason=length.
+    # response_format=json_object — the endpoint enforces valid JSON output,
+    # dodging the reasoning-model's tendency to mix prose with JSON.
     r = client.chat.completions.create(
         model=model,
         temperature=0.0,
+        response_format={"type": "json_object"},
         messages=[{"role": "user", "content": prompt}],
     )
     parsed = _extract_json(r.choices[0].message.content or "")

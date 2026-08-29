@@ -105,12 +105,15 @@ def run_worker_in_sandbox(
     try:
         acc, rel, reason = judge.score_tile(question, expected, answer)
     except Exception as e:
+        # DeepEval sometimes raises exceptions with empty str(e); include the
+        # type so the tile's reason is never just "scoring failed: ".
+        detail = f"{type(e).__name__}: {e}" if str(e) else type(e).__name__
         return {
             "answer": answer,
             "score": 0.0,
             "relevancy": 0.0,
-            "reason": f"scoring failed: {e}",
-            "error": str(e),
+            "reason": f"scoring failed: {detail}",
+            "error": detail,
         }
     return {
         "answer": answer,
